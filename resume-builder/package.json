@@ -23,6 +23,7 @@
     "@types/react-dom": "^19.2.3",
     "apify-client": "^2.11.2",
     "autoprefixer": "^10.4.27",
+    "proxy-agent": "^6.5.0",
     "framer-motion": "^12.38.0",
     "mammoth": "^1.9.0",
     "nanoid": "^5.1.7",

@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     "@google-cloud/storage",
     "pdf-parse",
     "apify-client",
+    "proxy-agent",
   ],
 };
 
