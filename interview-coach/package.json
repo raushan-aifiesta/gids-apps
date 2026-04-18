@@ -1,0 +1,43 @@
+{
+  "name": "interview-coach",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.19.0",
+    "@hookform/resolvers": "^5.0.0",
+    "@react-email/components": "^0.0.31",
+    "@tailwindcss/postcss": "^4.1.4",
+    "@types/canvas-confetti": "^1.6.4",
+    "@types/node": "^22.15.3",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "canvas-confetti": "^1.9.3",
+    "drizzle-orm": "^0.43.0",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^0.511.0",
+    "mongodb": "^6.15.0",
+    "nanoid": "^5.1.5",
+    "next": "^16.2.2",
+    "openai": "^6.33.0",
+    "pdf-parse": "^1.1.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-hook-form": "^7.55.0",
+    "resend": "^4.5.0",
+    "tailwindcss": "^4.1.4",
+    "typescript": "^6.0.2",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "15.3.0"
+  }
+}
