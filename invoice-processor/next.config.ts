@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: "/invoice-processor",
+  basePath: "/apps/invoice-processor",
 };
 
 export default nextConfig;

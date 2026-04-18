@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: "/screen-sync",
+  basePath: "/apps/screen-sync",
   serverExternalPackages: ["pdf-parse-new"],
 };
 

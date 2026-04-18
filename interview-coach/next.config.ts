@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: "/interview-coach",
+  basePath: "/apps/interview-coach",
   serverExternalPackages: ["pdf-parse", "mongodb"],
   turbopack: {},
 };

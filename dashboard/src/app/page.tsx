@@ -8,56 +8,56 @@ const APPS: Array<{
     name: "Multi-Model Chat",
     description:
       "Compare responses from multiple AI models side by side in a unified chat interface.",
-    href: "/chat-app",
+    href: "/apps/chat-app",
     accent: "linear-gradient(135deg, #7c3aed, #2563eb)",
   },
   {
     name: "Guess My Salary",
     description:
       "Upload your resume and find out what you're worth in the Indian job market.",
-    href: "/guess-my-salary",
+    href: "/apps/guess-my-salary",
     accent: "linear-gradient(135deg, #059669, #10b981)",
   },
   {
     name: "Resume Builder",
     description:
       "Build a polished, ATS-optimized resume from your LinkedIn, GitHub, and uploaded documents.",
-    href: "/resume-builder",
+    href: "/apps/resume-builder",
     accent: "linear-gradient(135deg, #f59e0b, #ef4444)",
   },
   {
     name: "Flashcard Engine",
     description:
       "Turn any PDF into a spaced-repetition flashcard deck you can study in-browser or export to Anki.",
-    href: "/flashcard-engine",
+    href: "/apps/flashcard-engine",
     accent: "linear-gradient(135deg, #ec4899, #f472b6)",
   },
   {
     name: "Will AI Take My Job?",
     description:
       "Search any role and get a risk report with upskill recommendations to stay ahead.",
-    href: "/will-ai-take-my-job",
+    href: "/apps/will-ai-take-my-job",
     accent: "linear-gradient(135deg, #0ea5e9, #6366f1)",
   },
   {
     name: "Interview Coach",
     description:
       "Practice a timed mock interview with AI feedback and a live leaderboard.",
-    href: "/interview-coach",
+    href: "/apps/interview-coach",
     accent: "linear-gradient(135deg, #14b8a6, #0ea5e9)",
   },
   {
     name: "Invoice Processor",
     description:
       "Extract line items from messy invoices and render a clean, shareable PDF.",
-    href: "/invoice-processor",
+    href: "/apps/invoice-processor",
     accent: "linear-gradient(135deg, #8b5cf6, #ec4899)",
   },
   {
     name: "Screen Sync",
     description:
       "Score and rank candidate resumes against a job description in one pass.",
-    href: "/screen-sync",
+    href: "/apps/screen-sync",
     accent: "linear-gradient(135deg, #f97316, #eab308)",
   },
 ];

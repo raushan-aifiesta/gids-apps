@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: "/chat-app",
+  basePath: "/apps/chat-app",
 };
 
 export default nextConfig;

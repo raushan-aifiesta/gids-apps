@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: "/resume-builder",
+  basePath: "/apps/resume-builder",
   serverExternalPackages: [
     "mammoth",
     "@react-pdf/renderer",

@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: "/guess-my-salary",
+  basePath: "/apps/guess-my-salary",
 };
 
 export default nextConfig;
