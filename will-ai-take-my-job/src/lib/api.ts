@@ -1,7 +1,8 @@
 import type { JobAnalysis } from "./types";
+import { apiPath } from "./basePath";
 
 export async function analyzeJob(jobTitle: string): Promise<JobAnalysis> {
-  const res = await fetch("/api/analyze", {
+  const res = await fetch(apiPath("/api/analyze"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ jobTitle }),

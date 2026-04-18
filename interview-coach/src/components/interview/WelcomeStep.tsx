@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import type { InterviewMode } from "@/lib/types";
+import { apiPath } from "@/lib/basePath";
 
 const schema = z.object({
   role: z.string().max(60).optional(),
@@ -72,7 +73,7 @@ export default function WelcomeStep({ onStart, loading }: Props) {
       try {
         const fd = new FormData();
         fd.append("resume", resumeFile);
-        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const res = await fetch(apiPath("/api/upload"), { method: "POST", body: fd });
         if (!res.ok) throw new Error("Upload failed");
         const data = await res.json();
         resumeText = data.text;

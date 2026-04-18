@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { apiPath } from "@/lib/basePath";
 import type { ScreeningResponse } from "@/lib/types";
 
 interface UploadFormProps {
@@ -75,7 +76,7 @@ export function UploadForm({ onComplete }: UploadFormProps) {
     resumes.forEach((r) => formData.append("resumes", r));
 
     try {
-      const res = await fetch("/api/screen", {
+      const res = await fetch(apiPath("/api/screen"), {
         method: "POST",
         body: formData,
       });

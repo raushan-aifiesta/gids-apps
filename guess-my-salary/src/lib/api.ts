@@ -1,7 +1,8 @@
 import type { MeshModel, SalaryAnalysisResponse } from "@/lib/types";
+import { apiPath } from "@/lib/basePath";
 
 export async function fetchModels(): Promise<MeshModel[]> {
-  const res = await fetch("/api/models");
+  const res = await fetch(apiPath("/api/models"));
   if (!res.ok) throw new Error("Failed to fetch models");
   const data = (await res.json()) as unknown[];
   return (Array.isArray(data) ? data : (data as { data?: unknown[] }).data ?? []).filter(
@@ -11,7 +12,7 @@ export async function fetchModels(): Promise<MeshModel[]> {
 }
 
 export async function analyzeSalary(resumeText: string): Promise<SalaryAnalysisResponse> {
-  const res = await fetch("/api/salary/analyze", {
+  const res = await fetch(apiPath("/api/salary/analyze"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ resumeText }),

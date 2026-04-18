@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import type { LeaderboardEntry } from "@/lib/types";
 import type { SessionState } from "./HotSeat";
+import { apiPath } from "@/lib/basePath";
 
 interface Props {
   currentSession: SessionState;
@@ -30,7 +31,7 @@ export default function LeaderboardStep({ currentSession, onRestart }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/leaderboard")
+    fetch(apiPath("/api/leaderboard"))
       .then((r) => r.json())
       .then((data) => setEntries(data.entries ?? []))
       .catch(() => {})

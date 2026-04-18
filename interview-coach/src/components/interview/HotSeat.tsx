@@ -16,6 +16,7 @@ import FeedbackStep from "./FeedbackStep";
 import ResultsStep from "./ResultsStep";
 import LeaderboardStep from "./Leaderboard";
 import AnimatedBackground from "@/components/ui/AnimatedBackground";
+import { apiPath } from "@/lib/basePath";
 
 type AppStep = "welcome" | "question" | "feedback" | "results" | "leaderboard";
 
@@ -49,7 +50,7 @@ export default function HotSeat() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("/api/interview/start", {
+        const res = await fetch(apiPath("/api/interview/start"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(params),
@@ -86,7 +87,7 @@ export default function HotSeat() {
       setError(null);
       try {
         const q = session.currentQuestion;
-        const res = await fetch("/api/interview/answer", {
+        const res = await fetch(apiPath("/api/interview/answer"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

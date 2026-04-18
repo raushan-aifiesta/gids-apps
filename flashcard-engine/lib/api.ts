@@ -1,4 +1,5 @@
 import type { Flashcard } from "./types";
+import { apiPath } from "./basePath";
 
 export interface GenerateFlashcardsResult {
   cards: Flashcard[];
@@ -8,7 +9,7 @@ export async function generateFlashcards(
   text: string,
   signal?: AbortSignal
 ): Promise<GenerateFlashcardsResult> {
-  const res = await fetch("/api/flashcards/generate", {
+  const res = await fetch(apiPath("/api/flashcards/generate"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text }),
@@ -36,7 +37,7 @@ export async function refineFlashcards(
   cards: Flashcard[],
   signal?: AbortSignal
 ): Promise<GenerateFlashcardsResult> {
-  const res = await fetch("/api/flashcards/refine", {
+  const res = await fetch(apiPath("/api/flashcards/refine"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ocrText, cards }),

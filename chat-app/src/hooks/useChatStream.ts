@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useChatStore } from "@/store/chatStore";
 import { useModels } from "@/hooks/useModels";
 import type { ChatMessage, ResponseUsage } from "@/lib/types";
+import { apiPath } from "@/lib/basePath";
 
 /**
  * Reads an SSE stream from /api/chat and calls onChunk/onUsage as data arrives.
@@ -15,7 +16,7 @@ async function streamChat(
 ): Promise<void> {
   console.log("[streamChat] Sending to /api/chat:", { modelId, messageCount: messages.length });
 
-  const res = await fetch("/api/chat", {
+  const res = await fetch(apiPath("/api/chat"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ model: modelId, messages }),

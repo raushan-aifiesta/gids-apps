@@ -11,6 +11,7 @@ import {
   Star,
 } from "lucide-react";
 import type { SessionState } from "./HotSeat";
+import { apiPath } from "@/lib/basePath";
 
 interface Props {
   session: SessionState;
@@ -58,7 +59,7 @@ export default function ResultsStep({
   // Save to leaderboard + fire confetti
   useEffect(() => {
     // Leaderboard save
-    fetch("/api/leaderboard", {
+    fetch(apiPath("/api/leaderboard"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

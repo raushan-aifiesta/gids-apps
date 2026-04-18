@@ -7,6 +7,7 @@ import { z } from "zod";
 import { motion } from "framer-motion";
 import { Mail, CheckCircle, RotateCcw, Sparkles, Lock } from "lucide-react";
 import type { SessionState } from "./HotSeat";
+import { apiPath } from "@/lib/basePath";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -31,7 +32,7 @@ export default function EmailCapture({ session, onDone }: Props) {
   const onSubmit = async (values: FormValues) => {
     setError(null);
     try {
-      const res = await fetch("/api/email", {
+      const res = await fetch(apiPath("/api/email"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

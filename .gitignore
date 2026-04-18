@@ -1,6 +1,8 @@
 resume-builder-old
 
-.env.local
+.env
+.env*.local
 node_modules
 .next
 key.json
+.vercel

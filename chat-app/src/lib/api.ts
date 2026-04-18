@@ -1,8 +1,9 @@
 import type { MeshModel } from "./types";
+import { apiPath } from "./basePath";
 
 // Fetches models via the Next.js server route — no API key or upstream URL exposed to browser
 export async function fetchModels(): Promise<MeshModel[]> {
-  const res = await fetch("/api/models");
+  const res = await fetch(apiPath("/api/models"));
 
   if (!res.ok) {
     throw new Error(`Failed to fetch models: ${res.status} ${res.statusText}`);

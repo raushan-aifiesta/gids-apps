@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  basePath: "/flashcard-engine",
   serverExternalPackages: [
     "mammoth",
     "@react-pdf/renderer",
