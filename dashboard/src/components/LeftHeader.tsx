@@ -7,9 +7,19 @@ export function LeftHeader() {
           mesh_api
         </span>
         <span className="font-mono text-xs text-muted-foreground">by</span>
-        <span className="font-mono text-xs font-medium text-muted-foreground">
-          AI Fiesta
-        </span>
+        <a
+          href="https://aifiesta.ai/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="AI Fiesta"
+          className="inline-flex items-center transition-opacity hover:opacity-80"
+        >
+          <img
+            src="/ai_fiesta_logo.png"
+            alt="AI Fiesta"
+            className="h-5 w-auto"
+          />
+        </a>
         <span className="ml-auto flex items-center gap-4">
           <a
             href="https://developers.meshapi.ai"
@@ -30,17 +40,11 @@ export function LeftHeader() {
         </span>
       </div>
 
-      <p className="mb-3 font-mono text-[11px] font-medium tracking-wider text-primary uppercase">
-        Apps built with Mesh API
-      </p>
-      <h1 className="mb-4 text-[clamp(32px,4.5vw,48px)] font-semibold leading-[1.05] tracking-[-0.03em]">
-        Eight products.
-        <br />
-        <span className="text-primary">One endpoint.</span>
+      <h1 className="mb-3 text-[clamp(30px,4vw,44px)] font-semibold leading-[1.05] tracking-[-0.03em]">
+        Apps built with <span className="text-primary">Mesh API</span>
       </h1>
-      <p className="max-w-[520px] text-base leading-relaxed text-muted-foreground">
-        Every app below runs on Mesh API — one OpenAI-compatible endpoint that
-        routes every major LLM. Click any app to try it live.
+      <p className="text-base text-muted-foreground">
+        Click any card to try it live.
       </p>
     </header>
   );

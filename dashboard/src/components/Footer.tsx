@@ -1,85 +1,170 @@
+"use client";
+
+import { openCalendly } from "@/lib/calendly";
+
 export function Footer() {
   return (
-    <footer className="border-t border-border">
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="lg:col-span-2">
-          <div className="mb-4 flex items-center gap-2">
-            <img src="/mesh_api_logo_icon.svg" alt="" className="h-6 w-6" />
-            <span className="font-mono text-[15px] font-medium text-foreground">
-              mesh_api
-            </span>
-          </div>
-          <p className="max-w-xs text-sm text-muted-foreground">
-            One OpenAI-compatible API for every model. Built and billed in India.
-          </p>
+    <footer className="border-t border-border/60 py-12">
+      {/* Large decorative watermark - full width
+      <div className="mb-8 px-6 sm:px-10 lg:px-16">
+        <div
+          className="font-mono font-bold text-foreground select-none leading-none whitespace-nowrap w-full"
+          style={{
+            fontSize: "11.5vw",
+            letterSpacing: "-0.04em",
+            maskImage: "linear-gradient(to bottom, white 0%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, white 0%, transparent 100%)",
+          }}
+        >
+          mesh_api
         </div>
-        <FooterCol
-          title="Product"
-          links={[
-            { label: "Home", href: "https://meshapi.ai" },
-            { label: "Pricing", href: "https://meshapi.ai/pricing" },
-            { label: "Models", href: "https://meshapi.ai/models" },
-            { label: "Docs", href: "https://developers.meshapi.ai" },
-          ]}
-        />
-        <FooterCol
-          title="Community"
-          links={[
-            { label: "X / Twitter", href: "https://x.com/aifiesta" },
-            { label: "AI Fiesta", href: "https://aifiesta.ai" },
-            { label: "Ambassador", href: "https://meshapi.ai/ambassador" },
-          ]}
-        />
-        <FooterCol
-          title="Support"
-          links={[
-            { label: "support@aifiesta.ai", href: "mailto:support@aifiesta.ai" },
-            { label: "Contact sales", href: "https://meshapi.ai/contact" },
-            { label: "Terms", href: "https://chat.aifiesta.ai/terms" },
-            { label: "Privacy", href: "https://chat.aifiesta.ai/privacy" },
-          ]}
-        />
       </div>
-      <div className="border-t border-border">
-        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-6 py-5">
-          <span className="text-xs text-muted-foreground/70">
+      */}
+
+      <div className="max-w-[1200px] mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-16">
+          {/* Brand */}
+          <div className="sm:col-span-2 lg:col-span-2">
+            <div className="flex items-center gap-2 mb-4">
+              <img src="/mesh_api_logo_icon.svg" alt="Mesh API" className="w-5 h-5" />
+              <span className="font-mono text-sm tracking-tight text-foreground">
+                mesh_api
+              </span>
+            </div>
+            <p className="text-[14px] leading-[1.7] max-w-[320px] mb-4 text-muted-foreground/80">
+              300+ AI LLMs through one unified API. Discounted pricing, ₹ billing,
+              and dedicated support.
+            </p>
+            <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
+              <span>by</span>
+              <a
+                href="https://aifiesta.ai/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="AI Fiesta"
+                className="inline-flex items-center transition-opacity hover:opacity-80"
+              >
+                <img
+                  src="/ai_fiesta_logo.png"
+                  alt="AI Fiesta"
+                  className="h-6 w-auto"
+                />
+              </a>
+            </div>
+          </div>
+
+          {/* Product */}
+          <div>
+            <h4 className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground mb-4">
+              Product
+            </h4>
+            <ul className="space-y-3">
+              <li>
+                <a
+                  href="https://developers.meshapi.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[14px] text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Documentation
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://meshapi.ai/models"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[14px] text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Models
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://meshapi.ai/pricing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[14px] text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Pricing
+                </a>
+              </li>
+              {/*
+              <li>
+                <a
+                  href="https://meshapi.ai/ambassador"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[14px] text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Ambassador Program
+                </a>
+              </li>
+              */}
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h4 className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground mb-4">
+              Company
+            </h4>
+            <ul className="space-y-3">
+              <li>
+                <a
+                  href="https://x.com/meshapi_ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[14px] text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Twitter / X
+                </a>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void openCalendly();
+                  }}
+                  className="text-left text-[14px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Contact
+                </button>
+              </li>
+              <li>
+                <a
+                  href="https://chat.aifiesta.ai/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[14px] text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://chat.aifiesta.ai/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[14px] text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Terms &amp; Conditions
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border/60">
+          <span className="font-mono text-[12px] text-muted-foreground/60">
             © {new Date().getFullYear()} Mesh API. All rights reserved.
           </span>
-          <span className="font-mono text-[11px] text-muted-foreground/70">
-            Powered by Mesh API
+          <span className="font-mono text-[12px] text-muted-foreground/60 flex items-center gap-1.5">
+            Built in India <span>🇮🇳</span>
           </span>
         </div>
       </div>
     </footer>
-  );
-}
-
-function FooterCol({
-  title,
-  links,
-}: {
-  title: string;
-  links: { label: string; href: string }[];
-}) {
-  return (
-    <div>
-      <p className="mb-3 font-mono text-[11px] font-medium tracking-wider text-muted-foreground/70 uppercase">
-        {title}
-      </p>
-      <ul className="flex flex-col gap-2.5">
-        {links.map((l) => (
-          <li key={l.href}>
-            <a
-              href={l.href}
-              target={l.href.startsWith("http") ? "_blank" : undefined}
-              rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {l.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }
