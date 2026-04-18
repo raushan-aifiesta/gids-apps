@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { QueryProvider } from "@/providers/QueryProvider";
+import { ContactGateProvider } from "@/lib/contactGate";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Resume Builder",
+  title: "Resume Builder — Powered by Mesh API",
   description:
     "Build a polished, ATS-optimized resume from your LinkedIn, GitHub, and uploaded documents.",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({
@@ -15,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <ContactGateProvider>{children}</ContactGateProvider>
+        </QueryProvider>
       </body>
     </html>
   );

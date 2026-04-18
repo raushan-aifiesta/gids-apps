@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
+import { ContactGateProvider } from "@/lib/contactGate";
 
 export const metadata: Metadata = {
-  title: "AI Fiesta — Multi-Model Chat",
-  description: "Compare responses from multiple AI models side by side",
+  title: "Multi-Model Chat — Powered by Mesh API",
+  description: "Compare responses from multiple AI models side by side.",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({
@@ -15,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <ContactGateProvider>{children}</ContactGateProvider>
+        </QueryProvider>
       </body>
     </html>
   );

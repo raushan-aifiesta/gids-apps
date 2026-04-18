@@ -9,9 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google-cloud/storage": "^7.19.0",
+    "geist": "^1.7.0",
+    "nanoid": "^5.1.9",
     "next": "^16.2.2",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^25.5.2",

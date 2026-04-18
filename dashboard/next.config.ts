@@ -28,6 +28,7 @@ function originFor(envKey: string, devPort: number): string | null {
 }
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["@google-cloud/storage"],
   async rewrites() {
     return SUBAPPS.flatMap(({ path, envKey, devPort }) => {
       const origin = originFor(envKey, devPort);

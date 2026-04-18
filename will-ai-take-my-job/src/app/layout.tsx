@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { ContactGateProvider } from "@/lib/contactGate";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,9 +15,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Will AI Take My Job?",
+  title: "Will AI Take My Job? — Powered by Mesh API",
   description:
-    "Find out your job's automation risk score and get a personalized upskilling roadmap — powered by AI labor market analysis.",
+    "Find out your job's automation risk score and get a personalized upskilling roadmap.",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({
@@ -31,7 +33,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <ContactGateProvider>{children}</ContactGateProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

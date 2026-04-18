@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/providers/QueryProvider";
+import { ContactGateProvider } from "@/lib/contactGate";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,8 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Flashcard Engine",
-  description: "Turn any PDF into interactive flashcards with AI",
+  title: "Flashcard Engine — Powered by Mesh API",
+  description: "Turn any PDF into interactive flashcards with AI.",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({
@@ -31,7 +33,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <QueryProvider>
-          {children}
+          <ContactGateProvider>{children}</ContactGateProvider>
           <Toaster />
         </QueryProvider>
       </body>
