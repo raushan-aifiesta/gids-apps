@@ -1,4 +1,4 @@
-"use client";
+import { ArrowUpRight } from "lucide-react";
 
 interface App {
   name: string;
@@ -77,106 +77,57 @@ const APPS: App[] = [
 
 export function AppGrid() {
   return (
-    <section
-      id="apps"
-      style={{
-        maxWidth: 1200,
-        margin: "0 auto",
-        padding: "32px 24px 96px",
-      }}
-    >
-      <div className="divider" style={{ marginBottom: 64 }} />
-      <div style={{ marginBottom: 40, maxWidth: 680 }}>
-        <p className="eyebrow" style={{ marginBottom: 12 }}>
+    <section id="apps" className="mx-auto w-full max-w-[1200px] px-6 pb-24">
+      <div className="relative my-8 h-px w-full overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
+      </div>
+
+      <div className="mb-10 max-w-2xl">
+        <p className="mb-3 font-mono text-[11px] font-medium tracking-wider text-primary uppercase">
           The apps
         </p>
-        <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", marginBottom: 12 }}>
+        <h2 className="mb-3 text-[clamp(28px,4vw,44px)] font-semibold tracking-tight">
           Real, working products.
         </h2>
-        <p style={{ fontSize: 16, color: "hsl(var(--muted-fg))", lineHeight: 1.55 }}>
-          Every card links to a live app running on Mesh API. Click any of them — the
-          same code patterns, every time.
+        <p className="text-base text-muted-foreground">
+          Every card links to a live app running on Mesh API. Click any of them —
+          the same integration pattern, every time.
         </p>
       </div>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: 16,
-        }}
-      >
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {APPS.map((app) => (
-          <Card key={app.href} app={app} />
+          <AppCard key={app.href} app={app} />
         ))}
       </div>
     </section>
   );
 }
 
-function Card({ app }: { app: App }) {
+function AppCard({ app }: { app: App }) {
   return (
     <a
       href={app.href}
-      className="card-surface"
-      style={{
-        padding: 24,
-        display: "flex",
-        flexDirection: "column",
-        gap: 12,
-        transition: "transform 0.25s var(--ease-spring), border-color 0.25s ease, background 0.25s ease",
-        position: "relative",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.borderColor = "hsl(var(--primary) / 0.4)";
-        e.currentTarget.style.background = "hsl(var(--card-elevated))";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.borderColor = "hsl(var(--border))";
-        e.currentTarget.style.background = "hsl(var(--card))";
-      }}
+      className="group relative flex flex-col gap-3 overflow-hidden rounded-xl border border-border bg-card p-5 transition-[transform,border-color,background] duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-card/80"
     >
-      <div
-        style={{
-          width: 36,
-          height: 36,
-          borderRadius: 10,
-          background: "hsl(var(--primary-soft))",
-          color: "hsl(var(--primary))",
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 18,
-          marginBottom: 4,
-        }}
-      >
-        {app.glyph}
+      <div className="flex items-start justify-between">
+        <div className="inline-flex size-9 items-center justify-center rounded-lg bg-primary/10 text-base text-primary">
+          {app.glyph}
+        </div>
+        <ArrowUpRight className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
       </div>
-      <p
-        className="mono"
-        style={{
-          fontSize: 11,
-          color: "hsl(var(--primary))",
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-        }}
-      >
-        {app.tag}
-      </p>
-      <h3 style={{ fontSize: 18, fontWeight: 600 }}>{app.name}</h3>
-      <p style={{ fontSize: 14, color: "hsl(var(--muted-fg))", lineHeight: 1.5 }}>
+      <div className="flex flex-col gap-1.5">
+        <p className="font-mono text-[10px] font-medium tracking-wider text-primary uppercase">
+          {app.tag}
+        </p>
+        <h3 className="text-[17px] font-semibold leading-tight tracking-tight">
+          {app.name}
+        </h3>
+      </div>
+      <p className="text-sm leading-relaxed text-muted-foreground">
         {app.description}
       </p>
-      <div
-        style={{
-          marginTop: "auto",
-          paddingTop: 16,
-          fontSize: 13,
-          fontWeight: 500,
-          color: "hsl(var(--primary))",
-        }}
-      >
+      <div className="mt-auto pt-3 text-[13px] font-medium text-primary">
         Open app →
       </div>
     </a>
