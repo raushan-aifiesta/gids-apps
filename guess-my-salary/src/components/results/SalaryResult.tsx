@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Loader2 } from "lucide-react";
 import { ConfidenceBar } from "./ConfidenceBar";
@@ -52,21 +52,20 @@ export function SalaryResult({ result, onReset }: SalaryResultProps) {
   const { prediction, profile, explanation } = result;
   const [currentSalaryInput, setCurrentSalaryInput] = useState("");
   const [downloading, setDownloading] = useState(false);
-  const resultRef = useRef<HTMLDivElement>(null);
 
   async function handleDownload() {
-    if (!resultRef.current || downloading) return;
+    if (downloading) return;
     setDownloading(true);
     try {
-      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
-        import("html2canvas-pro"),
-        import("jspdf"),
-      ]);
-      const canvas = await html2canvas(resultRef.current, { scale: 2, useCORS: true });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: [canvas.width / 2, canvas.height / 2] });
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
-      pdf.save("salary-report.pdf");
+      const { pdf } = await import("@react-pdf/renderer");
+      const { SalaryPDF } = await import("./SalaryPDF");
+      const blob = await pdf(<SalaryPDF result={result} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "salary-report.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
     } finally {
       setDownloading(false);
     }
@@ -98,7 +97,7 @@ export function SalaryResult({ result, onReset }: SalaryResultProps) {
           {downloading ? "Generating PDF…" : "Download PDF"}
         </button>
       </div>
-      <div ref={resultRef} className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5">
       {/* Verdict Banner */}
       <div className={`rounded-2xl border px-6 py-4 flex items-center gap-3 ${vs.bg} ${vs.border}`}>
         <span className="text-2xl">
