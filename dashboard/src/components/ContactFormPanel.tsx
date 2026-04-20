@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { Check, Send } from "lucide-react";
 import {
   upsertContact,
-  finalizeContact,
-  hasSubmittedContact,
   WHY_AI_OPTIONS,
   TOKENS_OPTIONS,
   type ContactPayload,
@@ -23,18 +21,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function ContactFormPanel() {
-  return <ContactForm variant="panel" />;
-}
-
-interface ContactFormProps {
-  variant: "panel" | "modal";
-  onSuccess?: () => void;
-}
-
 const AUTOSAVE_DELAY_MS = 600;
+const RESET_DELAY_MS = 3500;
 
-export function ContactForm({ variant, onSuccess }: ContactFormProps) {
+export function ContactFormPanel() {
+  return <ContactForm />;
+}
+
+function ContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
@@ -43,15 +37,21 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
-  const [done, setDone] = useState(() =>
-    typeof window !== "undefined" ? hasSubmittedContact() : false,
-  );
+  const [done, setDone] = useState(false);
+
+  // In-memory id for the current draft session. Cleared on reset.
+  const [currentId, setCurrentId] = useState<string | null>(null);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef<string>("");
-  const isDirtyRef = useRef(false);
+  const currentIdRef = useRef<string | null>(null);
 
-  // Autosave whenever any tracked field changes (debounced).
+  // Keep the ref in sync so the debounce callback sees the latest value
+  useEffect(() => {
+    currentIdRef.current = currentId;
+  }, [currentId]);
+
+  // Autosave on any field change (debounced)
   useEffect(() => {
     if (done) return;
 
@@ -62,19 +62,16 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
       why: why || undefined,
       tokens: tokens || undefined,
     };
-
     const signature = JSON.stringify(payload);
-    if (!signature || signature === "{}") return;
-    if (signature === lastSavedRef.current) return;
-    isDirtyRef.current = true;
+    if (signature === "{}" || signature === lastSavedRef.current) return;
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       try {
         setSaveState("saving");
-        await upsertContact(payload);
+        const { id } = await upsertContact(payload, currentIdRef.current ?? undefined);
+        if (!currentIdRef.current) setCurrentId(id);
         lastSavedRef.current = signature;
-        isDirtyRef.current = false;
         setSaveState("saved");
       } catch {
         setSaveState("idle");
@@ -86,6 +83,27 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
     };
   }, [name, email, company, why, tokens, done]);
 
+  function resetForm() {
+    setName("");
+    setEmail("");
+    setCompany("");
+    setWhy("");
+    setTokens("");
+    setError(null);
+    setSaveState("idle");
+    setCurrentId(null);
+    currentIdRef.current = null;
+    lastSavedRef.current = "";
+    setDone(false);
+  }
+
+  // Auto-reset the form a few seconds after the thank-you shows
+  useEffect(() => {
+    if (!done) return;
+    const t = setTimeout(resetForm, RESET_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [done]);
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -94,17 +112,20 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
       return;
     }
     setSubmitting(true);
+    // Flush any pending debounce immediately with the latest values
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     try {
-      await finalizeContact({
-        name: name.trim(),
-        email: email.trim(),
-        company: company.trim() || undefined,
-        why: why || undefined,
-        tokens: tokens || undefined,
-      });
-      lastSavedRef.current = "";
+      await upsertContact(
+        {
+          name: name.trim(),
+          email: email.trim(),
+          company: company.trim() || undefined,
+          why: why || undefined,
+          tokens: tokens || undefined,
+        },
+        currentIdRef.current ?? undefined,
+      );
       setDone(true);
-      onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -118,9 +139,9 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
         <div className="mb-5 inline-flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Check className="size-6" />
         </div>
-        <h3 className="mb-2 text-xl font-semibold">You&apos;re in.</h3>
-        <p className="max-w-[280px] text-sm text-muted-foreground">
-          Thanks for sharing — explore any app. We&apos;ll be in touch.
+        <h3 className="mb-2 text-xl font-semibold">Thank you.</h3>
+        <p className="max-w-[300px] text-sm text-muted-foreground">
+          Your response has been recorded. Our team will get back to you.
         </p>
       </div>
     );
@@ -130,14 +151,14 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
     <form onSubmit={onSubmit} className="flex h-full flex-col gap-5 px-8 py-10 sm:py-12">
       <div>
         <p className="mb-2 font-mono text-[11px] font-medium tracking-wider text-primary uppercase">
-          {variant === "modal" ? "Before you continue" : "Stay in the loop"}
+          Stay in the loop
         </p>
         <h2 className="text-[22px] font-semibold tracking-tight">
-          {variant === "modal" ? "Tell us who you are" : "Get Mesh API updates"}
+          Get Mesh API updates
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
           We&apos;ll send occasional updates on new models, pricing, and features.
-          Only name and email are required to finish — but anything you type is saved.
+          Only name and email are required.
         </p>
       </div>
 
@@ -225,7 +246,7 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
       <div className="mt-auto flex flex-col gap-2 pt-2">
         <Button type="submit" disabled={submitting} className="w-full">
           {submitting ? (
-            "Finalizing…"
+            "Sending…"
           ) : (
             <>
               Send <Send className="size-4" />

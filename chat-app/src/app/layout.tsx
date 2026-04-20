@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
-import { ContactGateProvider } from "@/lib/contactGate";
 
 export const metadata: Metadata = {
   title: "Multi-Model Chat — Powered by Mesh API",
@@ -23,9 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryProvider>
-          <ContactGateProvider>{children}</ContactGateProvider>
-        </QueryProvider>
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ContactGateProvider } from "@/lib/contactGate";
 
 export const metadata: Metadata = {
   title: "AI Interview Coach — Powered by Mesh API",
@@ -23,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="scanline">
-        <ContactGateProvider>{children}</ContactGateProvider>
+        {children}
       </body>
     </html>
   );

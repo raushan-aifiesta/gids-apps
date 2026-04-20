@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { QueryProvider } from "@/providers/QueryProvider";
-import { ContactGateProvider } from "@/lib/contactGate";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,9 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryProvider>
-          <ContactGateProvider>{children}</ContactGateProvider>
-        </QueryProvider>
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
