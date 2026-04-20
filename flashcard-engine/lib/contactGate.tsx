@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiPath } from "./basePath";
 
 const FLAG_KEY = "meshapi_contact_submitted";
 const SUBMIT_EVENT = "meshapi-contact-submitted";
@@ -21,7 +22,11 @@ const TOKENS_OPTIONS = [
   "100M+",
 ] as const;
 
-export function ContactGateProvider({ children }: { children: React.ReactNode }) {
+export function ContactGateProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -99,7 +104,7 @@ function ContactModal({ onSubmitted }: { onSubmitted: () => void }) {
     try {
       // /api/contact lives at the dashboard root origin — NOT under the sub-app basePath,
       // so this request is not intercepted by our patched fetch (different prefix).
-      const res = await fetch("/api/contact", {
+      const res = await fetch(apiPath("/api/contact"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -108,7 +113,8 @@ function ContactModal({ onSubmitted }: { onSubmitted: () => void }) {
           company: company.trim() || undefined,
           why: why || undefined,
           tokens: tokens || undefined,
-          referrer: typeof document !== "undefined" ? document.referrer : undefined,
+          referrer:
+            typeof document !== "undefined" ? document.referrer : undefined,
         }),
       });
       if (!res.ok) {
@@ -124,38 +130,89 @@ function ContactModal({ onSubmitted }: { onSubmitted: () => void }) {
   }
 
   return (
-    <div style={OVERLAY_STYLE} role="dialog" aria-modal="true" aria-labelledby="mesh-gate-title">
+    <div
+      style={OVERLAY_STYLE}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="mesh-gate-title"
+    >
       <form onSubmit={submit} style={MODAL_STYLE}>
         <p style={EYEBROW_STYLE}>Before you continue</p>
-        <h3 id="mesh-gate-title" style={{ fontSize: 22, fontWeight: 600, marginBottom: 8, color: "#fff" }}>
+        <h3
+          id="mesh-gate-title"
+          style={{
+            fontSize: 22,
+            fontWeight: 600,
+            marginBottom: 8,
+            color: "#fff",
+          }}
+        >
           Tell us who you are
         </h3>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 20 }}>
-          Quick hello before your first request. Only name and email are required.
+        <p
+          style={{
+            fontSize: 13,
+            color: "rgba(255,255,255,0.6)",
+            marginBottom: 20,
+          }}
+        >
+          Quick hello before your first request. Only name and email are
+          required.
         </p>
 
         <ModalField label="Full name" required>
           <ModalInput value={name} onChange={setName} placeholder="Jane Doe" />
         </ModalField>
         <ModalField label="Email" required>
-          <ModalInput value={email} onChange={setEmail} type="email" placeholder="jane@company.com" />
+          <ModalInput
+            value={email}
+            onChange={setEmail}
+            type="email"
+            placeholder="jane@company.com"
+          />
         </ModalField>
         <ModalField label="Company" hint="Optional">
-          <ModalInput value={company} onChange={setCompany} placeholder="Acme Inc" />
+          <ModalInput
+            value={company}
+            onChange={setCompany}
+            placeholder="Acme Inc"
+          />
         </ModalField>
         <ModalField label="Why AI?" hint="Optional">
-          <ModalRadios value={why} onChange={setWhy} options={WHY_AI_OPTIONS} name="why" />
+          <ModalRadios
+            value={why}
+            onChange={setWhy}
+            options={WHY_AI_OPTIONS}
+            name="why"
+          />
         </ModalField>
         <ModalField label="Monthly tokens" hint="Optional">
-          <ModalRadios value={tokens} onChange={setTokens} options={TOKENS_OPTIONS} name="tokens" compact />
+          <ModalRadios
+            value={tokens}
+            onChange={setTokens}
+            options={TOKENS_OPTIONS}
+            name="tokens"
+            compact
+          />
         </ModalField>
 
-        {error && <p style={{ color: "#ff7070", fontSize: 13, marginBottom: 12 }}>{error}</p>}
+        {error && (
+          <p style={{ color: "#ff7070", fontSize: 13, marginBottom: 12 }}>
+            {error}
+          </p>
+        )}
 
         <button type="submit" disabled={submitting} style={SUBMIT_BTN_STYLE}>
           {submitting ? "Sending…" : "Send →"}
         </button>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 12, textAlign: "center" }}>
+        <p
+          style={{
+            fontSize: 11,
+            color: "rgba(255,255,255,0.4)",
+            marginTop: 12,
+            textAlign: "center",
+          }}
+        >
           We&apos;ll never spam. One reply, max.
         </p>
       </form>
@@ -176,12 +233,31 @@ function ModalField({
 }) {
   return (
     <div style={{ marginBottom: 14 }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
-        <label style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          marginBottom: 6,
+        }}
+      >
+        <label
+          style={{
+            fontSize: 12,
+            color: "rgba(255,255,255,0.7)",
+            fontWeight: 500,
+          }}
+        >
           {label}
-          {required && <span style={{ color: "#7c6dfa", marginLeft: 4 }}>*</span>}
+          {required && (
+            <span style={{ color: "#7c6dfa", marginLeft: 4 }}>*</span>
+          )}
         </label>
-        {hint && <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>{hint}</span>}
+        {hint && (
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
+            {hint}
+          </span>
+        )}
       </div>
       {children}
     </div>
@@ -242,7 +318,14 @@ function ModalRadios({
   compact?: boolean;
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: compact ? "row" : "column", flexWrap: "wrap", gap: compact ? 8 : 6 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: compact ? "row" : "column",
+        flexWrap: "wrap",
+        gap: compact ? 8 : 6,
+      }}
+    >
       {options.map((opt) => {
         const active = value === opt;
         return (
@@ -262,7 +345,14 @@ function ModalRadios({
               flex: compact ? "0 0 auto" : "1 1 auto",
             }}
           >
-            <input type="radio" name={name} value={opt} checked={active} onChange={() => onChange(opt)} style={{ display: "none" }} />
+            <input
+              type="radio"
+              name={name}
+              value={opt}
+              checked={active}
+              onChange={() => onChange(opt)}
+              style={{ display: "none" }}
+            />
             {opt}
           </label>
         );
@@ -282,7 +372,8 @@ const OVERLAY_STYLE: React.CSSProperties = {
   zIndex: 9999,
   padding: 20,
   overflowY: "auto",
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  fontFamily:
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
 };
 
 const MODAL_STYLE: React.CSSProperties = {

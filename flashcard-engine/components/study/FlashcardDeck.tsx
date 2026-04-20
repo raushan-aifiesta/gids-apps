@@ -2,17 +2,53 @@
 
 import { useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
-import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import { FlashcardCard } from "./FlashcardCard";
 import { ProgressBar } from "./ProgressBar";
 import { useStudySession } from "@/hooks/useStudySession";
 import { downloadAnkiCsv } from "@/lib/ankiExport";
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+  Shuffle,
+  Download,
+} from "lucide-react";
 import type { CardRating, Deck } from "@/lib/types";
-import { RotateCcw, Shuffle, Download, ArrowLeft, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FlashcardDeckProps {
   deck: Deck;
   onBack: () => void;
+}
+
+function IconBtn({
+  onClick,
+  title,
+  children,
+  className,
+}: {
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      className={cn(
+        "flex h-8 w-8 items-center justify-center rounded-lg border border-white/8 bg-white/[0.03]",
+        "text-zinc-400 transition-all duration-150",
+        "hover:border-white/16 hover:bg-white/[0.07] hover:text-zinc-200",
+        "active:scale-95",
+        className
+      )}
+    >
+      {children}
+    </button>
+  );
 }
 
 export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
@@ -32,19 +68,12 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
 
   const confettiFired = useRef(false);
 
-  // Confetti when all cards are done
   useEffect(() => {
     if (isFinished && !confettiFired.current) {
       confettiFired.current = true;
-      confetti({
-        particleCount: 150,
-        spread: 80,
-        origin: { y: 0.6 },
-      });
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
     }
-    if (!isFinished) {
-      confettiFired.current = false;
-    }
+    if (!isFinished) confettiFired.current = false;
   }, [isFinished]);
 
   // Keyboard controls
@@ -52,31 +81,17 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
     function handleKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement).tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
-
       switch (e.key) {
         case " ":
           e.preventDefault();
-          // Flip is handled inside FlashcardCard via click, trigger click
           document.getElementById("flashcard-click-target")?.click();
           break;
-        case "ArrowRight":
-          goNext();
-          break;
-        case "ArrowLeft":
-          goPrev();
-          break;
-        case "1":
-          rateCard("incorrect");
-          break;
-        case "2":
-          rateCard("hard");
-          break;
-        case "3":
-          rateCard("easy");
-          break;
-        case "4":
-          rateCard("correct");
-          break;
+        case "ArrowRight": goNext(); break;
+        case "ArrowLeft":  goPrev(); break;
+        case "1": rateCard("incorrect"); break;
+        case "2": rateCard("hard");      break;
+        case "3": rateCard("easy");      break;
+        case "4": rateCard("correct");   break;
       }
     }
     window.addEventListener("keydown", handleKey);
@@ -90,37 +105,39 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
     (p) => p.rating === "incorrect" || p.rating === "hard"
   ).length;
 
-  const handleRate = (rating: CardRating) => {
-    rateCard(rating);
-  };
-
   return (
-    <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft className="mr-1 h-4 w-4" /> Back
-        </Button>
-        <h2 className="text-lg font-semibold truncate max-w-xs">{deck.title}</h2>
-        <div className="flex gap-2">
-          <Button variant="ghost" size="icon" title="Shuffle & restart" onClick={shuffle}>
-            <Shuffle className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" title="Restart deck" onClick={restart}>
-            <RotateCcw className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            title="Export to Anki"
-            onClick={() => downloadAnkiCsv(deck)}
-          >
-            <Download className="h-4 w-4" />
-          </Button>
+    <div className="flex flex-col gap-5 w-full">
+      {/* ── Header bar ──────────────────────────────────────────── */}
+      <div className="flex items-center justify-between gap-3">
+        {/* Back */}
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-zinc-400 transition-colors hover:text-zinc-200"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span className="hidden sm:inline">Back</span>
+        </button>
+
+        {/* Deck title */}
+        <h2 className="truncate text-sm font-semibold text-zinc-200 max-w-[160px] sm:max-w-xs">
+          {deck.title}
+        </h2>
+
+        {/* Actions */}
+        <div className="flex items-center gap-1.5">
+          <IconBtn onClick={shuffle} title="Shuffle & restart">
+            <Shuffle className="h-3.5 w-3.5" />
+          </IconBtn>
+          <IconBtn onClick={restart} title="Restart deck">
+            <RotateCcw className="h-3.5 w-3.5" />
+          </IconBtn>
+          <IconBtn onClick={() => downloadAnkiCsv(deck)} title="Export to Anki">
+            <Download className="h-3.5 w-3.5" />
+          </IconBtn>
         </div>
       </div>
 
-      {/* Progress */}
+      {/* ── Progress bar ─────────────────────────────────────────── */}
       <ProgressBar
         reviewed={reviewedCount}
         total={totalCount}
@@ -128,59 +145,107 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
         incorrect={incorrect}
       />
 
-      {/* Card or Finished state */}
+      {/* ── Card / Finished ──────────────────────────────────────── */}
       {isFinished ? (
-        <div className="flex flex-col items-center gap-6 py-12 text-center">
-          <p className="text-4xl">🎉</p>
-          <h3 className="text-2xl font-bold">Deck Complete!</h3>
-          <p className="text-muted-foreground">
-            {correct} correct · {incorrect} to review
-          </p>
-          <div className="flex gap-3">
-            <Button onClick={restart} variant="default">
-              <RotateCcw className="mr-2 h-4 w-4" /> Study Again
-            </Button>
-            <Button onClick={onBack} variant="outline">
-              Upload New PDF
-            </Button>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+          className="flex flex-col items-center gap-8 py-14 text-center"
+        >
+          <span className="text-6xl select-none" aria-hidden>🎉</span>
+
+          <div className="space-y-1">
+            <h3 className="text-3xl font-bold text-zinc-100">Deck Complete!</h3>
+            <p className="text-sm text-zinc-500">
+              You reviewed all {totalCount} cards
+            </p>
           </div>
-        </div>
+
+          {/* Score tiles */}
+          <div className="flex gap-4">
+            <div className="flex flex-col items-center gap-1 rounded-2xl border border-emerald-500/20 bg-emerald-500/8 px-8 py-5">
+              <span className="text-3xl font-bold text-emerald-400">
+                {correct}
+              </span>
+              <span className="text-xs text-emerald-600 uppercase tracking-wider">
+                Correct
+              </span>
+            </div>
+            <div className="flex flex-col items-center gap-1 rounded-2xl border border-red-500/20 bg-red-500/8 px-8 py-5">
+              <span className="text-3xl font-bold text-red-400">
+                {incorrect}
+              </span>
+              <span className="text-xs text-red-600 uppercase tracking-wider">
+                To Review
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={restart}
+              className="flex items-center justify-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+              style={{
+                background:
+                  "linear-gradient(135deg, oklch(0.55 0.22 265), oklch(0.50 0.22 285))",
+                boxShadow: "0 0 24px oklch(0.55 0.22 265 / 0.3)",
+              }}
+            >
+              <RotateCcw className="h-4 w-4" /> Study Again
+            </button>
+            <button
+              onClick={onBack}
+              className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-sm font-semibold text-zinc-300 transition-all hover:border-white/20 hover:bg-white/[0.06] active:scale-95"
+            >
+              Upload New PDF
+            </button>
+          </div>
+        </motion.div>
       ) : (
         <>
-          {/* Card counter */}
-          <p className="text-center text-sm text-muted-foreground">
-            Card {currentIndex + 1} of {totalCount}
+          {/* Card counter pill */}
+          <p className="text-center text-xs text-zinc-600 tabular-nums">
+            {currentIndex + 1}{" "}
+            <span className="text-zinc-700">/</span>{" "}
+            {totalCount}
           </p>
 
-          {/* Card */}
+          {/* The flashcard */}
           {currentCard && (
-            <div id="flashcard-click-target">
-              <FlashcardCard
-                card={currentCard}
-                onRate={handleRate}
-                cardKey={currentCard.id}
-              />
-            </div>
+            <FlashcardCard
+              card={currentCard}
+              onRate={(r: CardRating) => rateCard(r)}
+              cardKey={currentCard.id}
+            />
           )}
 
           {/* Navigation */}
-          <div className="flex justify-center gap-4">
-            <Button
-              variant="outline"
-              size="sm"
+          <div className="flex justify-center gap-3 pt-1">
+            <button
               onClick={goPrev}
               disabled={currentIndex === 0}
+              className={cn(
+                "flex items-center gap-1.5 rounded-xl border border-white/8 bg-white/[0.025] px-4 py-2 text-xs font-medium transition-all",
+                currentIndex === 0
+                  ? "opacity-30 cursor-not-allowed"
+                  : "text-zinc-400 hover:border-white/16 hover:text-zinc-200 active:scale-95"
+              )}
             >
-              <ArrowLeft className="mr-1 h-3 w-3" /> Prev
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
+              <ChevronLeft className="h-3.5 w-3.5" /> Prev
+            </button>
+            <button
               onClick={goNext}
               disabled={currentIndex === totalCount - 1}
+              className={cn(
+                "flex items-center gap-1.5 rounded-xl border border-white/8 bg-white/[0.025] px-4 py-2 text-xs font-medium transition-all",
+                currentIndex === totalCount - 1
+                  ? "opacity-30 cursor-not-allowed"
+                  : "text-zinc-400 hover:border-white/16 hover:text-zinc-200 active:scale-95"
+              )}
             >
-              Next <ArrowRight className="ml-1 h-3 w-3" />
-            </Button>
+              Next <ChevronRight className="h-3.5 w-3.5" />
+            </button>
           </div>
         </>
       )}
