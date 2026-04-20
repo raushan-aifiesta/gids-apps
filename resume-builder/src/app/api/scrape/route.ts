@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApifyClient } from "apify-client";
+import "proxy-agent";
 
 const apifyClient = new ApifyClient({
   token: process.env.APIFY_API_TOKEN ?? "",
