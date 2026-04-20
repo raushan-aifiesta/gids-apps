@@ -63,7 +63,7 @@ export function MessageList() {
     <div
       ref={scrollContainerRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto px-6 py-4"
+      className="flex-1 overflow-y-auto px-3 md:px-6 py-4"
     >
       <div className="max-w-3xl mx-auto space-y-6">
         {room.messages.map((message) => (

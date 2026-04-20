@@ -74,8 +74,7 @@ export function ModelPicker({ open, onClose }: Props) {
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
             <div
-              className="bg-white rounded-2xl shadow-2xl border border-gray-200 flex overflow-hidden relative"
-              style={{ width: 720, maxHeight: "70vh" }}
+              className="bg-white rounded-2xl shadow-2xl border border-gray-200 flex overflow-hidden relative w-full md:w-[720px] max-h-[85vh] md:max-h-[70vh]"
               onClick={(e) => e.stopPropagation()}
               onMouseLeave={() => setHoveredModel(null)}
             >
@@ -189,7 +188,7 @@ export function ModelPicker({ open, onClose }: Props) {
               </div>
 
               {/* Right: Description panel — always rendered as fixed-width, content swaps */}
-              <div className="w-56 shrink-0 border-l border-gray-100 overflow-y-auto">
+              <div className="hidden md:block w-56 shrink-0 border-l border-gray-100 overflow-y-auto">
                 <AnimatePresence mode="wait">
                   {hoveredModel ? (
                     <motion.div

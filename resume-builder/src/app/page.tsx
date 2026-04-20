@@ -64,8 +64,12 @@ export default function Home() {
             transition={{ delay: 0.1 }}
             className="text-gray-500 text-lg"
           >
-            Provide your LinkedIn, GitHub, or an existing resume and we&apos;ll craft an{" "}
-            <span className="text-indigo-600 font-medium">ATS-optimized PDF</span> in seconds.
+            Provide your LinkedIn, GitHub, or an existing resume and we&apos;ll
+            craft an{" "}
+            <span className="text-indigo-600 font-medium">
+              ATS-optimized PDF
+            </span>{" "}
+            in seconds.
           </motion.p>
         </div>
 
@@ -123,7 +127,7 @@ export default function Home() {
               </motion.button>
 
               <p className="text-center text-xs text-gray-400 mt-3">
-                Provide at least one source · Results saved to Google Cloud Storage
+                Provide at least one source
               </p>
             </motion.div>
           ) : isLoading ? (
@@ -135,8 +139,12 @@ export default function Home() {
               className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 flex flex-col items-center gap-8"
             >
               <div className="text-center">
-                <p className="text-lg font-bold text-gray-800 mb-1">Building your resume...</p>
-                <p className="text-sm text-gray-400">This may take 30–60 seconds</p>
+                <p className="text-lg font-bold text-gray-800 mb-1">
+                  Building your resume...
+                </p>
+                <p className="text-sm text-gray-400">
+                  This may take 30–60 seconds
+                </p>
               </div>
               <ProgressStepper state={state} />
             </motion.div>

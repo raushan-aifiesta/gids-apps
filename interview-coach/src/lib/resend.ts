@@ -25,7 +25,8 @@ export async function sendInterviewReport(params: {
     Junior: "#f59e0b",
     Intern: "#ef4444",
   };
-  const rankColor = rankColors[finalScore.rank as keyof typeof rankColors] ?? "#7c3aed";
+  const rankColor =
+    rankColors[finalScore.rank as keyof typeof rankColors] ?? "#7c3aed";
 
   const questionsHtml = answers
     .map(
@@ -84,7 +85,7 @@ export async function sendInterviewReport(params: {
 
   <div style="text-align:center;margin-top:32px;padding-top:24px;border-top:1px solid #1e1e2e">
     <p style="color:#475569;font-size:12px">AI Interview Coach · Developer Summit</p>
-    <p style="color:#374151;font-size:11px">This report was generated automatically. Results are for educational purposes.</p>
+    <p style="color:#374151;font-size:11px">This report was generated automatically</p>
   </div>
 </body>
 </html>`;

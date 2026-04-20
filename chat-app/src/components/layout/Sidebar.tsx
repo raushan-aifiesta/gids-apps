@@ -6,7 +6,12 @@ import { useChatStore } from "@/store/chatStore";
 
 const COLLAPSED_KEY = "ai-fiesta-sidebar-collapsed";
 
-export function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
   const { rooms, activeRoomId, setActiveRoom, deleteRoom, createRoom } = useChatStore();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -28,18 +33,15 @@ export function Sidebar() {
   const handleNewChat = () => {
     const id = createRoom();
     setActiveRoom(id);
+    onMobileClose?.();
   };
 
   const todayStart = new Date().setHours(0, 0, 0, 0);
   const todayRooms = rooms.filter((r) => r.createdAt >= todayStart);
   const olderRooms = rooms.filter((r) => r.createdAt < todayStart);
 
-  return (
-    <motion.aside
-      animate={{ width: collapsed ? 48 : 256 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="flex flex-col shrink-0 h-screen bg-white border-r border-gray-100 overflow-hidden"
-    >
+  const sidebarContent = (
+    <>
       {/* Top bar — always visible */}
       <div className="flex items-center px-3 pt-4 pb-3 border-b border-gray-100 shrink-0">
         <AnimatePresence initial={false}>
@@ -61,10 +63,10 @@ export function Sidebar() {
           )}
         </AnimatePresence>
 
-        {/* Collapse toggle */}
+        {/* Collapse toggle (desktop only) */}
         <button
           onClick={toggleCollapsed}
-          className={`flex items-center justify-center w-7 h-7 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors shrink-0 ${collapsed ? "mx-auto" : "ml-1"}`}
+          className={`hidden md:flex items-center justify-center w-7 h-7 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors shrink-0 ${collapsed ? "mx-auto" : "ml-1"}`}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <motion.svg
@@ -74,6 +76,18 @@ export function Sidebar() {
           >
             <polyline points="15 18 9 12 15 6" />
           </motion.svg>
+        </button>
+
+        {/* Mobile close button */}
+        <button
+          onClick={onMobileClose}
+          className="md:hidden flex items-center justify-center w-7 h-7 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors shrink-0 ml-1"
+          title="Close sidebar"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
       </div>
 
@@ -104,14 +118,14 @@ export function Sidebar() {
               {todayRooms.length > 0 && (
                 <div>
                   <p className="px-2 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">Today</p>
-                  <RoomList rooms={todayRooms} activeRoomId={activeRoomId} onSelect={setActiveRoom} onDelete={deleteRoom} />
+                  <RoomList rooms={todayRooms} activeRoomId={activeRoomId} onSelect={(id) => { setActiveRoom(id); onMobileClose?.(); }} onDelete={deleteRoom} />
                 </div>
               )}
 
               {olderRooms.length > 0 && (
                 <div>
                   <p className="px-2 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">Earlier</p>
-                  <RoomList rooms={olderRooms} activeRoomId={activeRoomId} onSelect={setActiveRoom} onDelete={deleteRoom} />
+                  <RoomList rooms={olderRooms} activeRoomId={activeRoomId} onSelect={(id) => { setActiveRoom(id); onMobileClose?.(); }} onDelete={deleteRoom} />
                 </div>
               )}
             </div>
@@ -142,7 +156,45 @@ export function Sidebar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <motion.aside
+        animate={{ width: collapsed ? 48 : 256 }}
+        transition={{ duration: 0.2, ease: "easeInOut" }}
+        className="hidden md:flex flex-col shrink-0 h-screen bg-white border-r border-gray-100 overflow-hidden"
+      >
+        {sidebarContent}
+      </motion.aside>
+
+      {/* Mobile sidebar drawer */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/40 z-40 md:hidden"
+              onClick={onMobileClose}
+            />
+            <motion.aside
+              initial={{ x: -256 }}
+              animate={{ x: 0 }}
+              exit={{ x: -256 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="fixed top-0 left-0 z-50 flex flex-col w-64 h-screen bg-white border-r border-gray-100 overflow-hidden md:hidden"
+            >
+              {sidebarContent}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 

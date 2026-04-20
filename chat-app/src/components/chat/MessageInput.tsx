@@ -38,7 +38,7 @@ export function MessageInput() {
   };
 
   return (
-    <div className="shrink-0 px-4 pb-4 pt-2">
+    <div className="shrink-0 px-4 pb-2 pt-2">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-end gap-3 bg-white border border-gray-200 rounded-2xl shadow-sm px-4 py-3 focus-within:border-gray-300 focus-within:shadow-md transition-shadow">
           <textarea
@@ -77,6 +77,13 @@ export function MessageInput() {
               </svg>
             )}
           </motion.button>
+        </div>
+        <div className="flex flex-col items-center gap-0.5 mt-2 pb-2">
+          <a href="https://meshapi.ai" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:opacity-70 transition-opacity">
+            <img src="/favicon.svg" alt="" className="h-4 w-4" />
+            <span className="font-mono text-xs font-medium text-gray-600">mesh_api</span>
+          </a>
+          <p className="text-xs text-gray-400 text-center">One endpoint for GPT, Claude, Gemini, and 300+ LLMs. Switch providers in real-time. Pay in any currency.</p>
         </div>
       </div>
     </div>
