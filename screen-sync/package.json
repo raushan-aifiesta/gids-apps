@@ -12,6 +12,7 @@
     "@google-cloud/storage": "^7.19.0",
     "apify-client": "^2.23.0",
     "clsx": "^2.1.1",
+    "geist": "^1.7.0",
     "lucide-react": "^0.513.0",
     "nanoid": "^5.1.9",
     "next": "^16.2.2",

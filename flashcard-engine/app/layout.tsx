@@ -1,18 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/providers/QueryProvider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Flashcard Engine — Powered by Mesh API",
@@ -28,11 +20,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+      className={`${GeistSans.variable} ${GeistMono.variable} dark h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <QueryProvider>
-          {children}
+          <div className="pb-16">{children}</div>
           <Toaster />
         </QueryProvider>
         <footer className="fixed bottom-0 left-0 right-0 py-3 px-6 border-t border-white/8 bg-zinc-950/80 backdrop-blur-md flex flex-col items-center gap-1 text-center z-50">
