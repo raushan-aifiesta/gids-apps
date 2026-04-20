@@ -1,4 +1,5 @@
 export const CONTACT_FLAG_KEY = "meshapi_contact_submitted";
+export const LEAD_ID_KEY = "meshapi_lead_id";
 
 export const WHY_AI_OPTIONS = [
   "Prototyping a feature",
@@ -20,12 +21,17 @@ export type WhyAI = (typeof WHY_AI_OPTIONS)[number];
 export type TokensRange = (typeof TOKENS_OPTIONS)[number];
 
 export interface ContactPayload {
-  name: string;
-  email: string;
+  name?: string;
+  email?: string;
   company?: string;
   why?: WhyAI;
   tokens?: TokensRange;
   referrer?: string;
+}
+
+function endpoint(): string {
+  if (typeof window === "undefined") return "/api/contact";
+  return `${window.location.origin}/api/contact`;
 }
 
 export function hasSubmittedContact(): boolean {
@@ -42,36 +48,65 @@ export function markContactSubmitted(): void {
   try {
     window.localStorage.setItem(CONTACT_FLAG_KEY, "true");
   } catch {
-    /* quota or disabled — caller still allows request through */
+    /* ignore */
   }
 }
 
-export async function submitContact(payload: ContactPayload): Promise<void> {
-  const endpoint =
-    typeof window !== "undefined" && window.location.hostname === "gids.meshapi.ai"
-      ? "/api/contact"
-      : deriveContactEndpoint();
+export function getLeadId(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.localStorage.getItem(LEAD_ID_KEY);
+  } catch {
+    return null;
+  }
+}
 
-  const res = await fetch(endpoint, {
+function setLeadId(id: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(LEAD_ID_KEY, id);
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Upsert a (possibly partial) lead. Returns the row id.
+ * If no id is passed, inserts a new row. If id is passed (or present in
+ * localStorage), updates that row. Persists the returned id to localStorage
+ * so subsequent calls from anywhere on the same origin update the same row.
+ */
+export async function upsertContact(
+  payload: ContactPayload,
+): Promise<{ id: string }> {
+  const id = getLeadId();
+
+  const body: ContactPayload & { id?: string; referrer?: string } = {
+    ...payload,
+    referrer:
+      payload.referrer ??
+      (typeof document !== "undefined" ? document.referrer || undefined : undefined),
+  };
+  if (id) body.id = id;
+
+  const res = await fetch(endpoint(), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ...payload,
-      referrer: payload.referrer ?? (typeof document !== "undefined" ? document.referrer : undefined),
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!res.ok) {
     const msg = await res.text().catch(() => "");
-    throw new Error(msg || `Contact submit failed: ${res.status}`);
+    throw new Error(msg || `Contact upsert failed: ${res.status}`);
   }
 
-  markContactSubmitted();
+  const data = (await res.json()) as { id: string };
+  if (!id && data.id) setLeadId(data.id);
+  return { id: data.id };
 }
 
-function deriveContactEndpoint(): string {
-  if (typeof window === "undefined") return "/api/contact";
-  // Dashboard serves /api/contact at the root origin. Under multi-zone everything
-  // is same-origin, so a relative path works from both the dashboard and any sub-app.
-  return `${window.location.origin}/api/contact`;
+/** Call on explicit "submit" click — flushes the local flag. Also does one last upsert. */
+export async function finalizeContact(payload: ContactPayload): Promise<void> {
+  await upsertContact(payload);
+  markContactSubmitted();
 }

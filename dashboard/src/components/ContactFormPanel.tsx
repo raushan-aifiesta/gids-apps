@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Send } from "lucide-react";
 import {
-  submitContact,
+  upsertContact,
+  finalizeContact,
   hasSubmittedContact,
   WHY_AI_OPTIONS,
   TOKENS_OPTIONS,
+  type ContactPayload,
   type WhyAI,
   type TokensRange,
 } from "@/lib/contact";
@@ -30,6 +32,8 @@ interface ContactFormProps {
   onSuccess?: () => void;
 }
 
+const AUTOSAVE_DELAY_MS = 600;
+
 export function ContactForm({ variant, onSuccess }: ContactFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -38,26 +42,67 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
   const [tokens, setTokens] = useState<TokensRange | "">("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [done, setDone] = useState(() =>
     typeof window !== "undefined" ? hasSubmittedContact() : false,
   );
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedRef = useRef<string>("");
+  const isDirtyRef = useRef(false);
+
+  // Autosave whenever any tracked field changes (debounced).
+  useEffect(() => {
+    if (done) return;
+
+    const payload: ContactPayload = {
+      name: name || undefined,
+      email: email || undefined,
+      company: company || undefined,
+      why: why || undefined,
+      tokens: tokens || undefined,
+    };
+
+    const signature = JSON.stringify(payload);
+    if (!signature || signature === "{}") return;
+    if (signature === lastSavedRef.current) return;
+    isDirtyRef.current = true;
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        setSaveState("saving");
+        await upsertContact(payload);
+        lastSavedRef.current = signature;
+        isDirtyRef.current = false;
+        setSaveState("saved");
+      } catch {
+        setSaveState("idle");
+      }
+    }, AUTOSAVE_DELAY_MS);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [name, email, company, why, tokens, done]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     if (!name.trim() || !email.trim()) {
-      setError("Name and email are required.");
+      setError("Name and email are required to finish.");
       return;
     }
     setSubmitting(true);
     try {
-      await submitContact({
+      await finalizeContact({
         name: name.trim(),
         email: email.trim(),
         company: company.trim() || undefined,
         why: why || undefined,
         tokens: tokens || undefined,
       });
+      lastSavedRef.current = "";
       setDone(true);
       onSuccess?.();
     } catch (err) {
@@ -92,7 +137,7 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
           We&apos;ll send occasional updates on new models, pricing, and features.
-          Only name and email are required.
+          Only name and email are required to finish — but anything you type is saved.
         </p>
       </div>
 
@@ -105,7 +150,7 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Jane Doe"
-          required
+          autoComplete="name"
         />
       </div>
 
@@ -119,7 +164,7 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="jane@company.com"
-          required
+          autoComplete="email"
         />
       </div>
 
@@ -133,6 +178,7 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
           value={company}
           onChange={(e) => setCompany(e.target.value)}
           placeholder="Acme Inc"
+          autoComplete="organization"
         />
       </div>
 
@@ -179,16 +225,21 @@ export function ContactForm({ variant, onSuccess }: ContactFormProps) {
       <div className="mt-auto flex flex-col gap-2 pt-2">
         <Button type="submit" disabled={submitting} className="w-full">
           {submitting ? (
-            "Sending…"
+            "Finalizing…"
           ) : (
             <>
               Send <Send className="size-4" />
             </>
           )}
         </Button>
-        <p className="text-center text-[10px] text-muted-foreground/70">
-          We&apos;ll never spam. One reply, max.
-        </p>
+        <div className="flex items-center justify-between text-[10px] text-muted-foreground/70">
+          <span>
+            {saveState === "saving" && "Saving…"}
+            {saveState === "saved" && "Saved"}
+            {saveState === "idle" && "\u00A0"}
+          </span>
+          <span>We&apos;ll never spam. One reply, max.</span>
+        </div>
       </div>
     </form>
   );
