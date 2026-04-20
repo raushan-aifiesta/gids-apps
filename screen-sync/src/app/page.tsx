@@ -27,7 +27,7 @@ export default function Home() {
             <Scan className="h-6 w-6 text-violet-400" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-white">
-            ScreenSync
+            Resume Screener
           </h1>
           <p className="mt-2 text-sm text-slate-400 flex items-center justify-center gap-1.5">
             <Sparkles className="h-3.5 w-3.5 text-violet-400" />
@@ -48,7 +48,7 @@ export default function Home() {
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-600">
-          Files are processed server-side and not stored permanently.
+          Resumes are stored securely in the cloud for audit purposes.
         </p>
       </div>
     </main>

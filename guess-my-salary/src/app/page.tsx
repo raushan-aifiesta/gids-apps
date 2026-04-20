@@ -1,7 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
 import { ResumeUpload } from "@/components/upload/ResumeUpload";
+import { LinkedInInput } from "@/components/upload/LinkedInInput";
 import { SalaryResult } from "@/components/results/SalaryResult";
 import { SalaryQuestionsForm } from "@/components/questions/SalaryQuestionsForm";
 import { useSalaryAnalysis } from "@/hooks/useSalaryAnalysis";
@@ -13,7 +15,8 @@ const STEP_LABELS: Record<string, string> = {
 };
 
 export default function Page() {
-  const { state, analyze, submitQuestions, reset } = useSalaryAnalysis();
+  const { state, analyze, analyzeText, submitQuestions, reset } = useSalaryAnalysis();
+  const [inputTab, setInputTab] = useState<"resume" | "linkedin">("resume");
 
   const isLoading =
     state.status === "parsing" ||
@@ -40,9 +43,37 @@ export default function Page() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="w-full flex justify-center"
+            className="w-full flex flex-col items-center gap-4"
           >
-            <ResumeUpload onFile={analyze} />
+            {/* Tab toggle */}
+            <div className="flex rounded-xl border border-gray-200 bg-white p-1 gap-1 shadow-sm">
+              <button
+                onClick={() => setInputTab("resume")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  inputTab === "resume"
+                    ? "bg-indigo-500 text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+              >
+                Upload Resume
+              </button>
+              <button
+                onClick={() => setInputTab("linkedin")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  inputTab === "linkedin"
+                    ? "bg-indigo-500 text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+              >
+                LinkedIn URL
+              </button>
+            </div>
+
+            {inputTab === "resume" ? (
+              <ResumeUpload onFile={analyze} />
+            ) : (
+              <LinkedInInput onResume={analyzeText} />
+            )}
           </motion.div>
         )}
 

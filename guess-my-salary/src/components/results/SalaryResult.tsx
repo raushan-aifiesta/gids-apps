@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
+import { Download, Loader2 } from "lucide-react";
 import { ConfidenceBar } from "./ConfidenceBar";
 import { ExplanationCard } from "./ExplanationCard";
 import type { SalaryAnalysisResponse, SalaryVerdict } from "@/lib/types";
@@ -50,6 +51,26 @@ function verdictStyle(label: string): { bg: string; text: string; border: string
 export function SalaryResult({ result, onReset }: SalaryResultProps) {
   const { prediction, profile, explanation } = result;
   const [currentSalaryInput, setCurrentSalaryInput] = useState("");
+  const [downloading, setDownloading] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  async function handleDownload() {
+    if (!resultRef.current || downloading) return;
+    setDownloading(true);
+    try {
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+      const canvas = await html2canvas(resultRef.current, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: [canvas.width / 2, canvas.height / 2] });
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
+      pdf.save("salary-report.pdf");
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   const currentSalary = parseFloat(currentSalaryInput);
   const hasCurrentSalary = !isNaN(currentSalary) && currentSalary > 0;
@@ -66,6 +87,18 @@ export function SalaryResult({ result, onReset }: SalaryResultProps) {
       transition={{ duration: 0.4 }}
       className="w-full max-w-2xl flex flex-col gap-5"
     >
+      {/* Download button */}
+      <div className="flex justify-end">
+        <button
+          onClick={handleDownload}
+          disabled={downloading}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-600 text-sm font-medium hover:bg-indigo-100 transition-colors disabled:opacity-60"
+        >
+          {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          {downloading ? "Generating PDF…" : "Download PDF"}
+        </button>
+      </div>
+      <div ref={resultRef} className="flex flex-col gap-5">
       {/* Verdict Banner */}
       <div className={`rounded-2xl border px-6 py-4 flex items-center gap-3 ${vs.bg} ${vs.border}`}>
         <span className="text-2xl">
@@ -192,6 +225,7 @@ export function SalaryResult({ result, onReset }: SalaryResultProps) {
 
       {/* Structured Explanation */}
       <ExplanationCard explanation={explanation} />
+      </div>{/* end resultRef div */}
 
       {/* Reset */}
       <button

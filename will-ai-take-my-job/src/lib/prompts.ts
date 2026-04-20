@@ -30,6 +30,14 @@ Scoring rules:
 - Provide exactly 3 upskillSteps, ordered from most impactful to least
 - The JSON must be parseable by JSON.parse() with no modifications
 
+When the user provides additional context about their specific work situation, use it to personalize the analysis:
+- workRoutine: how repetitive/templated their daily work is (mostly_same = high routine = higher risk; mostly_new = low routine = lower risk)
+- humanConnection: how much their job relies on in-person human connection and emotional intelligence (a_lot = strong protection against automation)
+- creativeJudgment: how often they solve novel problems without a clear playbook (constantly = strong protection)
+- outputType: mostly_digital = higher AI risk; mostly_physical = lower AI risk due to embodiment requirements
+
+Use this context to calibrate the automationRiskScore, and specifically tailor atRiskTasks and safeHumanTasks to reflect their actual work pattern — not just the generic job title.
+
 Return ONLY the JSON object.`;
 
 export function sanitizeJobAnalysis(raw: unknown): JobAnalysis {

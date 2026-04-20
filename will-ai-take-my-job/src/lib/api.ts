@@ -1,11 +1,11 @@
-import type { JobAnalysis } from "./types";
+import type { JobAnalysis, JobContext } from "./types";
 import { apiPath } from "./basePath";
 
-export async function analyzeJob(jobTitle: string): Promise<JobAnalysis> {
+export async function analyzeJob(jobTitle: string, context?: JobContext): Promise<JobAnalysis> {
   const res = await fetch(apiPath("/api/analyze"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jobTitle }),
+    body: JSON.stringify({ jobTitle, context }),
   });
 
   if (!res.ok) {

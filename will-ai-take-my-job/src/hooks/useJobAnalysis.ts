@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { AnalysisState } from "@/lib/types";
+import type { AnalysisState, JobContext } from "@/lib/types";
 import { analyzeJob } from "@/lib/api";
 
 const RECENT_KEY = "wai_recent_searches";
@@ -28,21 +28,22 @@ export function getRecentSearches(): string[] {
 export function useJobAnalysis() {
   const [state, setState] = useState<AnalysisState>({ status: "idle" });
 
-  async function analyze(jobTitle: string) {
+  function analyze(jobTitle: string) {
     const title = jobTitle.trim();
     if (!title) return;
+    setState({ status: "questions", jobTitle: title });
+  }
 
+  async function submitWithContext(jobTitle: string, context: JobContext) {
     setState({ status: "analyzing" });
-
     try {
-      const result = await analyzeJob(title);
+      const result = await analyzeJob(jobTitle, context);
       saveRecentSearch(result.jobTitle);
       setState({ status: "done", result });
     } catch (err) {
       setState({
         status: "error",
-        message:
-          err instanceof Error ? err.message : "Something went wrong. Please try again.",
+        message: err instanceof Error ? err.message : "Something went wrong. Please try again.",
       });
     }
   }
@@ -51,5 +52,5 @@ export function useJobAnalysis() {
     setState({ status: "idle" });
   }
 
-  return { state, analyze, reset };
+  return { state, analyze, submitWithContext, reset };
 }

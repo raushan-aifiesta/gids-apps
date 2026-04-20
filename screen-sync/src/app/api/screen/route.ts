@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { nanoid } from "nanoid";
 import { meshClient, SCREENING_MODEL } from "@/lib/meshClient";
 import { extractTextFromFile } from "@/lib/pdfExtract";
+import { uploadToGCS } from "@/lib/gcs";
 import { SCREENING_SYSTEM_PROMPT, buildScreeningUserPrompt } from "@/lib/prompts";
 import type { CandidateResult, ScreeningResponse } from "@/lib/types";
 
@@ -15,9 +17,10 @@ export async function POST(req: NextRequest) {
   }
 
   const jdFile = formData.get("jobDescription") as File | null;
+  const jdTextDirect = formData.get("jdText") as string | null; // from paste or LinkedIn scrape
   const resumeFiles = formData.getAll("resumes") as File[];
 
-  if (!jdFile) {
+  if (!jdFile && !jdTextDirect) {
     return NextResponse.json(
       { error: "Job description is required." },
       { status: 400 },
@@ -36,18 +39,28 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Extract text from all documents in parallel
+  const sessionId = nanoid();
+
+  // Extract text from all documents in parallel, upload resumes to GCS
   let jdText: string;
   let resumeTexts: Array<{ fileName: string; text: string }>;
 
   try {
-    [jdText, ...resumeTexts] = await Promise.all([
-      extractTextFromFile(jdFile),
-      ...resumeFiles.map(async (f) => ({
+    const jdPromise = jdFile ? extractTextFromFile(jdFile) : Promise.resolve(jdTextDirect!);
+    const resumePromises = resumeFiles.map(async (f) => {
+      const arrayBuffer = await f.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const safeName = f.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+      // Upload to GCS in background (don't block screening)
+      uploadToGCS(buffer, `resume-screener/${sessionId}/${safeName}`, f.type || "application/pdf")
+        .catch((err) => console.error(`GCS upload failed for ${f.name}:`, err));
+      return {
         fileName: f.name,
         text: await extractTextFromFile(f),
-      })),
-    ]);
+      };
+    });
+
+    [jdText, ...resumeTexts] = await Promise.all([jdPromise, ...resumePromises]);
   } catch (err) {
     console.error("Text extraction error:", err);
     return NextResponse.json(

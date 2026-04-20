@@ -139,7 +139,7 @@
     font-family: var(--font-geist-mono), ui-monospace, monospace;
     background: oklch(0.16 0 0);
     border: 1px solid oklch(1 0 0 / 22%);
-    border-bottom: 3px solid oklch(0 0 0 / 55%);
+    border-bottom: 1px solid oklch(1 0 0 / 22%);
     border-radius: 5px;
     color: oklch(0.78 0 0);
     box-shadow:

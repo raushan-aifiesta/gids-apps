@@ -15,8 +15,16 @@ export interface JobAnalysis {
   analysisDate: string;
 }
 
+export interface JobContext {
+  workRoutine?: "mostly_same" | "mix" | "mostly_new";
+  humanConnection?: "not_much" | "somewhat" | "a_lot";
+  creativeJudgment?: "rarely" | "sometimes" | "constantly";
+  outputType?: "fully_digital" | "mixed" | "mostly_physical";
+}
+
 export type AnalysisState =
   | { status: "idle" }
+  | { status: "questions"; jobTitle: string }
   | { status: "analyzing" }
   | { status: "done"; result: JobAnalysis }
   | { status: "error"; message: string };

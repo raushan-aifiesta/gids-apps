@@ -2,32 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTheme } from "next-themes";
-import { Sun, Moon } from "lucide-react";
 import { SearchBar } from "@/components/search/SearchBar";
 import { RecentSearches } from "@/components/search/RecentSearches";
 import { ReportView } from "@/components/report/ReportView";
 import { ReportSkeleton } from "@/components/skeletons/ReportSkeleton";
+import { JobContextForm } from "@/components/questions/JobContextForm";
 import { useJobAnalysis, getRecentSearches } from "@/hooks/useJobAnalysis";
 
-function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return <div className="w-9 h-9" />;
-  return (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-      aria-label="Toggle theme"
-    >
-      {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-    </button>
-  );
-}
-
 export default function Home() {
-  const { state, analyze, reset } = useJobAnalysis();
+  const { state, analyze, submitWithContext, reset } = useJobAnalysis();
   const [recents, setRecents] = useState<string[]>([]);
 
   useEffect(() => {
@@ -44,11 +27,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50/20 to-rose-50/10 dark:from-slate-950 dark:via-violet-950/20 dark:to-rose-950/10 px-4 py-12">
-      {/* Theme toggle */}
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-violet-950/20 to-rose-950/10 px-4 py-12">
 
       <div className="max-w-3xl mx-auto">
         <AnimatePresence mode="wait">
@@ -91,6 +70,23 @@ export default function Home() {
               )}
 
               <RecentSearches searches={recents} onSelect={handleAnalyze} />
+            </motion.div>
+          )}
+
+          {/* Context questions */}
+          {state.status === "questions" && (
+            <motion.div
+              key="questions"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              className="pt-8"
+            >
+              <JobContextForm
+                jobTitle={state.jobTitle}
+                onSubmit={(context) => submitWithContext(state.jobTitle, context)}
+                onBack={reset}
+              />
             </motion.div>
           )}
 

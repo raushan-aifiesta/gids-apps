@@ -22,6 +22,19 @@ export function useSalaryAnalysis() {
     }
   }, []);
 
+  const analyzeText = useCallback(async (resumeText: string) => {
+    try {
+      setState({ status: "parsing" });
+      const { profile, prefill } = await parseResume(resumeText);
+      setState({ status: "questions", resumeText, profile, prefill });
+    } catch (error) {
+      setState({
+        status: "error",
+        message: error instanceof Error ? error.message : "Something went wrong.",
+      });
+    }
+  }, []);
+
   const submitQuestions = useCallback(
     async (resumeText: string, profile: ResumeProfile, userContext: UserContext) => {
       try {
@@ -52,5 +65,5 @@ export function useSalaryAnalysis() {
     setState({ status: "idle" });
   }, []);
 
-  return { state, analyze, submitQuestions, reset };
+  return { state, analyze, analyzeText, submitQuestions, reset };
 }
