@@ -9,6 +9,13 @@ export const metadata: Metadata = {
   description:
     "Upload an invoice PDF, extract structured fields with Mesh, classify the expense, and export a downloadable summary PDF.",
   icons: { icon: "/favicon.svg" },
+  openGraph: {
+    title: "Invoice Processor — Powered by Mesh API",
+    description:
+      "Upload an invoice PDF, extract structured fields with Mesh, classify the expense, and export a downloadable summary PDF.",
+    images: ["/favicon.svg"],
+    type: "website",
+  },
 };
 
 export default function RootLayout({

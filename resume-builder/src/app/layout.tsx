@@ -9,6 +9,13 @@ export const metadata: Metadata = {
   description:
     "Build a polished, ATS-optimized resume from your LinkedIn, GitHub, and uploaded documents.",
   icons: { icon: "/favicon.svg" },
+  openGraph: {
+    title: "Resume Builder — Powered by Mesh API",
+    description:
+      "Build a polished, ATS-optimized resume from your LinkedIn, GitHub, and uploaded documents.",
+    images: ["/favicon.svg"],
+    type: "website",
+  },
 };
 
 export default function RootLayout({

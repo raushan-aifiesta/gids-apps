@@ -10,6 +10,12 @@ export const metadata: Metadata = {
   title: "Screen Sync — Powered by Mesh API",
   description: "Screen resumes against job descriptions with AI-powered analysis.",
   icons: { icon: "/favicon.svg" },
+  openGraph: {
+    title: "Screen Sync — Powered by Mesh API",
+    description: "Screen resumes against job descriptions with AI-powered analysis.",
+    images: ["/favicon.svg"],
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

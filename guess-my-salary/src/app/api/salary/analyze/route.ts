@@ -43,7 +43,7 @@ function getForcedToolArguments(message: ToolCallMessage | undefined, name: stri
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as { resumeText?: unknown };
+    const body = await req.json() as { resumeText?: unknown; profile?: unknown; userContext?: unknown };
     const resumeText =
       typeof body?.resumeText === "string" ? body.resumeText.trim() : "";
 
@@ -56,34 +56,47 @@ export async function POST(req: NextRequest) {
 
     const limitedText = resumeText.slice(0, MAX_RESUME_TEXT_CHARS);
 
-    // ── Step 1: Parse resume with Gemini Flash ────────────────────────────────
-    const parseCompletion = await meshClient.chat.completions.create({
-      model: "google/gemini-2-5-flash",
-      temperature: 0.1,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You extract structured candidate profile data from resume text. Return only what is supported by the text and use sensible defaults for missing fields. Always call the parse_resume tool.",
-        },
-        {
-          role: "user",
-          content: limitedText,
-        },
-      ],
-      tools: [PARSE_RESUME_TOOL],
-      tool_choice: { type: "function", function: { name: "parse_resume" } },
-    });
+    // ── Step 1: Parse resume (skip if profile already provided by client) ─────
+    let profile;
+    if (body.profile) {
+      try {
+        profile = sanitizeResumeProfile(body.profile);
+      } catch {
+        profile = null;
+      }
+    }
 
-    const profile = sanitizeResumeProfile(
-      getForcedToolArguments(parseCompletion.choices[0]?.message as ToolCallMessage, "parse_resume")
-    );
+    if (!profile) {
+      const parseCompletion = await meshClient.chat.completions.create({
+        model: "google/gemini-2-5-flash",
+        temperature: 0.1,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You extract structured candidate profile data from resume text. Return only what is supported by the text and use sensible defaults for missing fields. Always call the parse_resume tool.",
+          },
+          { role: "user", content: limitedText },
+        ],
+        tools: [PARSE_RESUME_TOOL],
+        tool_choice: { type: "function", function: { name: "parse_resume" } },
+      });
+
+      profile = sanitizeResumeProfile(
+        getForcedToolArguments(parseCompletion.choices[0]?.message as ToolCallMessage, "parse_resume")
+      );
+    }
+
+    const userContext = body.userContext ?? null;
 
     // ── Step 2: Predict salary (Bedrock Claude, fallback to GPT-4o-mini) ──────
     let prediction;
+    const predictPayload = userContext
+      ? JSON.stringify({ profile, userContext }, null, 2)
+      : JSON.stringify(profile, null, 2);
     const predictMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
       { role: "system", content: SALARY_PREDICTION_SYSTEM_PROMPT },
-      { role: "user", content: JSON.stringify(profile, null, 2) },
+      { role: "user", content: predictPayload },
     ];
 
     try {

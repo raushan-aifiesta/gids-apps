@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ResumeUpload } from "@/components/upload/ResumeUpload";
 import { SalaryResult } from "@/components/results/SalaryResult";
+import { SalaryQuestionsForm } from "@/components/questions/SalaryQuestionsForm";
 import { useSalaryAnalysis } from "@/hooks/useSalaryAnalysis";
 
 const STEP_LABELS: Record<string, string> = {
@@ -12,7 +13,7 @@ const STEP_LABELS: Record<string, string> = {
 };
 
 export default function Page() {
-  const { state, analyze, reset } = useSalaryAnalysis();
+  const { state, analyze, submitQuestions, reset } = useSalaryAnalysis();
 
   const isLoading =
     state.status === "parsing" ||
@@ -42,6 +43,22 @@ export default function Page() {
             className="w-full flex justify-center"
           >
             <ResumeUpload onFile={analyze} />
+          </motion.div>
+        )}
+
+        {/* Questions */}
+        {state.status === "questions" && (
+          <motion.div
+            key="questions"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="w-full max-w-2xl"
+          >
+            <SalaryQuestionsForm
+              prefill={state.prefill}
+              onSubmit={(ctx) => submitQuestions(state.resumeText, state.profile, ctx)}
+            />
           </motion.div>
         )}
 

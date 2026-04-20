@@ -52,11 +52,32 @@ export interface SalaryAnalysisResponse {
   explanation: SalaryExplanation;
 }
 
-export type AnalysisStatus = "idle" | "parsing" | "predicting" | "explaining" | "done" | "error";
+export interface QuestionPrefill {
+  city?: string;
+  job_function?: string;
+  industry?: string;
+  company_type?: string;
+  years_experience?: string;
+  education?: string;
+}
+
+export interface UserContext {
+  city?: string;
+  job_function?: string;
+  industry?: string;
+  company_type?: string;
+  years_experience?: number;
+  education?: string;
+  open_to_relocation?: "yes_any" | "same_city" | "no";
+  current_salary_lpa?: string;
+}
+
+export type AnalysisStatus = "idle" | "parsing" | "questions" | "predicting" | "explaining" | "done" | "error";
 
 export type AnalysisState =
   | { status: "idle" }
   | { status: "parsing" }
+  | { status: "questions"; resumeText: string; profile: ResumeProfile; prefill: QuestionPrefill }
   | { status: "predicting" }
   | { status: "explaining" }
   | { status: "done"; result: SalaryAnalysisResponse }

@@ -19,6 +19,13 @@ export const metadata: Metadata = {
   description:
     "Find out your job's automation risk score and get a personalized upskilling roadmap.",
   icons: { icon: "/favicon.svg" },
+  openGraph: {
+    title: "Will AI Take My Job? — Powered by Mesh API",
+    description:
+      "Find out your job's automation risk score and get a personalized upskilling roadmap.",
+    images: ["/favicon.svg"],
+    type: "website",
+  },
 };
 
 export default function RootLayout({

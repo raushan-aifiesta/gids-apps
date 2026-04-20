@@ -1,4 +1,4 @@
-import type { ResumeProfile, SalaryPrediction } from "@/lib/types";
+import type { QuestionPrefill, ResumeProfile, SalaryPrediction } from "@/lib/types";
 
 // ─── Tool Schemas ─────────────────────────────────────────────────────────────
 
@@ -7,7 +7,7 @@ export const PARSE_RESUME_TOOL = {
   function: {
     name: "parse_resume",
     description:
-      "Extract structured profile information from resume text and return structured JSON.",
+      "Extract structured profile information from resume text and return structured JSON, including best-match prefill suggestions for a salary estimation questionnaire.",
     parameters: {
       type: "object",
       additionalProperties: false,
@@ -18,6 +18,12 @@ export const PARSE_RESUME_TOOL = {
         "companies",
         "education",
         "location",
+        "prefill_city",
+        "prefill_job_function",
+        "prefill_industry",
+        "prefill_company_type",
+        "prefill_years_experience",
+        "prefill_education",
       ],
       properties: {
         years_experience: {
@@ -45,6 +51,36 @@ export const PARSE_RESUME_TOOL = {
         location: {
           type: "string",
           description: "Current city or location of the candidate.",
+        },
+        prefill_city: {
+          type: ["string", "null"],
+          enum: ["Bengaluru", "Hyderabad", "Mumbai", "Delhi/NCR", "Pune", "Chennai", "Kolkata", "Other", null],
+          description: "Best-match city from the candidate's location. Must be one of the listed values, or null if unclear.",
+        },
+        prefill_job_function: {
+          type: ["string", "null"],
+          enum: ["Engineering/Tech", "Data/AI/ML", "Product Management", "Sales/BD", "Marketing", "Design", "Finance", "Operations/HR", "Other", null],
+          description: "Best-match job function based on the candidate's most recent role. Must be one of the listed values, or null if unclear.",
+        },
+        prefill_industry: {
+          type: ["string", "null"],
+          enum: ["Product/SaaS", "IT Services/Outsourcing", "Fintech/BFSI", "E-commerce/D2C", "Healthcare/Pharma", "EdTech", "Consulting", "Media/Gaming", "Other", null],
+          description: "Best-match industry based on the companies the candidate has worked at. Must be one of the listed values, or null if unclear.",
+        },
+        prefill_company_type: {
+          type: ["string", "null"],
+          enum: ["MNC/Large Corp (1000+)", "Mid-size (100–1000)", "Startup (Series A+)", "Early-stage Startup (<Series A)", "Indian Conglomerate", "Government/PSU", null],
+          description: "Best-match company type for the candidate's most recent employer. Must be one of the listed values, or null if unclear.",
+        },
+        prefill_years_experience: {
+          type: ["string", "null"],
+          enum: ["0", "2", "4", "7", "11", "15", null],
+          description: "Experience bracket value matching years_experience: 0–1→'0', 2–3→'2', 4–6→'4', 7–10→'7', 11–15→'11', 15+→'15'. Must be one of the listed string values, or null.",
+        },
+        prefill_education: {
+          type: ["string", "null"],
+          enum: ["B.Tech/B.E.", "MBA/PGDM", "M.Tech/MS", "PhD", "Bachelor's (non-eng)", "Diploma/Polytechnic", "High School or below", "Other", null],
+          description: "Best-match education level from the candidate's highest qualification. Must be one of the listed values, or null if unclear.",
         },
       },
     },
@@ -257,6 +293,20 @@ PERFORMANCE SIGNAL HANDLING:
 - If signals are vague or cannot be verified from the resume alone, note the uncertainty: "Performance signals suggest above-average potential, but role-level seniority and market norms set the base range"
 - NEVER say performance signals are absent if the resume mentions any revenue, targets, or achievements
 
+━━ USER-CONFIRMED CONTEXT ━━
+When the input includes a "userContext" object alongside "profile", treat it as ground truth:
+- userContext.city → override profile location for salary band selection
+- userContext.industry → use for sector-level pay adjustments (e.g. IT Services vs Product SaaS)
+- userContext.company_type → use for company tier penalty/reward
+- userContext.job_function → use to resolve ambiguous role titles to the correct salary band
+- userContext.years_experience → use over resume-parsed value if they differ
+- userContext.education → use over resume-parsed value if they differ
+- userContext.open_to_relocation:
+  - "yes_any" → candidate can target metro rates even if currently in a Tier-2 city
+  - "same_city" → lock salary band to stated city only
+  - "no" → use current city rates, no upside for metro
+- userContext.current_salary_lpa → candidate's current salary bracket (e.g. "10–15"). Use this in reasoning to frame their position relative to the predicted range. Do NOT mention it explicitly in the output — let it inform your range calibration.
+
 Output ONLY the JSON tool call. No text outside it.`;
 
 export const EXPLAIN_SALARY_SYSTEM_PROMPT = `You are a sharp, honest career advisor explaining a salary prediction to a job seeker in India.
@@ -374,6 +424,19 @@ export function sanitizeResumeProfile(value: unknown): ResumeProfile {
       : [],
     education: typeof v?.education === "string" ? v.education.trim() : "",
     location: typeof v?.location === "string" ? v.location.trim() : "",
+  };
+}
+
+export function sanitizeQuestionPrefill(value: unknown): QuestionPrefill {
+  const v = value as Record<string, unknown>;
+  const str = (k: string) => (typeof v?.[k] === "string" && v[k] !== null ? (v[k] as string) : undefined);
+  return {
+    city: str("prefill_city"),
+    job_function: str("prefill_job_function"),
+    industry: str("prefill_industry"),
+    company_type: str("prefill_company_type"),
+    years_experience: str("prefill_years_experience"),
+    education: str("prefill_education"),
   };
 }
 

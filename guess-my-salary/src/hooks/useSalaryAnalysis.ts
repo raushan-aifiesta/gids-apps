@@ -2,8 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { extractTextFromPdf } from "@/lib/pdfText";
-import { analyzeSalary } from "@/lib/api";
-import type { AnalysisState } from "@/lib/types";
+import { parseResume, analyzeSalary } from "@/lib/api";
+import type { AnalysisState, ResumeProfile, UserContext } from "@/lib/types";
 
 export function useSalaryAnalysis() {
   const [state, setState] = useState<AnalysisState>({ status: "idle" });
@@ -12,24 +12,8 @@ export function useSalaryAnalysis() {
     try {
       setState({ status: "parsing" });
       const resumeText = await extractTextFromPdf(file);
-
-      setState({ status: "predicting" });
-      // Small yield so the UI can paint the "predicting" state before the long fetch
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      // The API does prediction + explanation server-side sequentially,
-      // so we show "explaining" state after a short delay to give feedback
-      const resultPromise = analyzeSalary(resumeText);
-
-      // After 3 s assume prediction done, show explaining state
-      const explainTimer = setTimeout(() => {
-        setState({ status: "explaining" });
-      }, 3000);
-
-      const result = await resultPromise;
-      clearTimeout(explainTimer);
-
-      setState({ status: "done", result });
+      const { profile, prefill } = await parseResume(resumeText);
+      setState({ status: "questions", resumeText, profile, prefill });
     } catch (error) {
       setState({
         status: "error",
@@ -38,9 +22,35 @@ export function useSalaryAnalysis() {
     }
   }, []);
 
+  const submitQuestions = useCallback(
+    async (resumeText: string, profile: ResumeProfile, userContext: UserContext) => {
+      try {
+        setState({ status: "predicting" });
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        const resultPromise = analyzeSalary(resumeText, userContext, profile);
+
+        const explainTimer = setTimeout(() => {
+          setState({ status: "explaining" });
+        }, 3000);
+
+        const result = await resultPromise;
+        clearTimeout(explainTimer);
+
+        setState({ status: "done", result });
+      } catch (error) {
+        setState({
+          status: "error",
+          message: error instanceof Error ? error.message : "Something went wrong.",
+        });
+      }
+    },
+    []
+  );
+
   const reset = useCallback(() => {
     setState({ status: "idle" });
   }, []);
 
-  return { state, analyze, reset };
+  return { state, analyze, submitQuestions, reset };
 }

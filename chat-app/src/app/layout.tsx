@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   title: "Multi-Model Chat — Powered by Mesh API",
   description: "Compare responses from multiple AI models side by side.",
   icons: { icon: "/favicon.svg" },
+  openGraph: {
+    title: "Multi-Model Chat — Powered by Mesh API",
+    description: "Compare responses from multiple AI models side by side.",
+    images: ["/favicon.svg"],
+    type: "website",
+  },
 };
 
 export default function RootLayout({

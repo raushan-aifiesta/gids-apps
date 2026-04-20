@@ -8,8 +8,10 @@ export const metadata: Metadata = {
     "Test your developer skills with AI-powered mock interviews. Coach Mode or Roast Mode — your choice.",
   icons: { icon: "/favicon.svg" },
   openGraph: {
-    title: "AI Interview Coach",
+    title: "AI Interview Coach — Powered by Mesh API",
     description: "How good are you really? Find out in the Hot Seat.",
+    images: ["/favicon.svg"],
+    type: "website",
   },
 };
 
