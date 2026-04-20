@@ -77,6 +77,7 @@ export function ModelPicker({ open, onClose }: Props) {
               className="bg-white rounded-2xl shadow-2xl border border-gray-200 flex overflow-hidden relative"
               style={{ width: 720, maxHeight: "70vh" }}
               onClick={(e) => e.stopPropagation()}
+              onMouseLeave={() => setHoveredModel(null)}
             >
               {/* Close button */}
               <button
@@ -90,11 +91,8 @@ export function ModelPicker({ open, onClose }: Props) {
                 </svg>
               </button>
 
-              {/* Left: Model List — onMouseLeave here clears hovered, not on individual rows */}
-              <div
-                className="flex flex-col flex-1 min-w-0"
-                onMouseLeave={() => setHoveredModel(null)}
-              >
+              {/* Left: Model List */}
+              <div className="flex flex-col flex-1 min-w-0">
                 {/* Search */}
                 <div className="px-4 pt-4 pb-3 border-b border-gray-100">
                   <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
@@ -160,14 +158,14 @@ export function ModelPicker({ open, onClose }: Props) {
                       {group.models.map((model) => {
                         const isSelected = selectedModelIds.includes(model.id);
                         return (
-                          <motion.button
+                          <button
                             key={model.id}
-                            whileHover={{ backgroundColor: "#f9fafb" }}
                             onClick={() => toggleModel(model.id)}
-                            // Only onMouseEnter per row — leave is handled by parent div
                             onMouseEnter={() => setHoveredModel(model)}
-                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                              isSelected ? "bg-blue-50" : ""
+                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors duration-150 ${
+                              isSelected
+                                ? "bg-blue-50 hover:bg-blue-100"
+                                : "hover:bg-gray-50"
                             }`}
                           >
                             <ProviderAvatar modelId={model.id} size={28} />
@@ -182,7 +180,7 @@ export function ModelPicker({ open, onClose }: Props) {
                                 <polyline points="20 6 9 17 4 12" />
                               </svg>
                             )}
-                          </motion.button>
+                          </button>
                         );
                       })}
                     </div>

@@ -7,11 +7,17 @@ const meshClient = new OpenAI({
   // server-only — no dangerouslyAllowBrowser needed
 });
 
+// Model IDs that need remapping to match the upstream provider's naming
+const MODEL_ALIASES: Record<string, string> = {
+  "anthropic/claude-opus-4.7": "anthropic/claude-opus-4-7",
+};
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { model, messages } = body;
+  const resolvedModel = MODEL_ALIASES[model] ?? model;
 
-  console.log("[/api/chat] POST received", { model, messageCount: messages?.length });
+  console.log("[/api/chat] POST received", { model, resolvedModel, messageCount: messages?.length });
   console.log("[/api/chat] Using baseURL:", process.env.MESH_API_URL ?? "http://localhost:8000/v1");
 
   const encoder = new TextEncoder();
@@ -19,10 +25,10 @@ export async function POST(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        console.log("[/api/chat] Opening stream to upstream for model:", model);
+        console.log("[/api/chat] Opening stream to upstream for model:", resolvedModel);
 
         const completion = meshClient.chat.completions.stream({
-          model,
+          model: resolvedModel,
           messages,
           stream: true,
         });

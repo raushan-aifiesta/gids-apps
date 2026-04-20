@@ -26,10 +26,7 @@ export interface ContactPayload {
   referrer?: string;
 }
 
-function endpoint(): string {
-  if (typeof window === "undefined") return "/api/contact";
-  return `${window.location.origin}/api/contact`;
-}
+import { apiPath } from "@/lib/basePath";
 
 /**
  * Upsert a (possibly partial) lead. Caller owns the id: pass it to update
@@ -48,7 +45,7 @@ export async function upsertContact(
   };
   if (id) body.id = id;
 
-  const res = await fetch(endpoint(), {
+  const res = await fetch(apiPath("/api/contact"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
