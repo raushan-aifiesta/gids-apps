@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import confetti from "canvas-confetti";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FlashcardCard } from "./FlashcardCard";
 import { ProgressBar } from "./ProgressBar";
+import { CardGrid } from "./CardGrid";
 import { useStudySession } from "@/hooks/useStudySession";
 import { downloadAnkiCsv } from "@/lib/ankiExport";
 import {
@@ -14,6 +15,7 @@ import {
   RotateCcw,
   Shuffle,
   Download,
+  Grid3X3,
 } from "lucide-react";
 import type { CardRating, Deck } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -43,7 +45,7 @@ function IconBtn({
         "text-zinc-400 transition-all duration-150",
         "hover:border-white/16 hover:bg-white/[0.07] hover:text-zinc-200",
         "active:scale-95",
-        className
+        className,
       )}
     >
       {children}
@@ -52,6 +54,7 @@ function IconBtn({
 }
 
 export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
+  const [showCardGrid, setShowCardGrid] = useState(true);
   const {
     currentCard,
     currentIndex,
@@ -62,6 +65,7 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
     rateCard,
     goNext,
     goPrev,
+    goTo,
     shuffle,
     restart,
   } = useStudySession(deck);
@@ -86,12 +90,24 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
           e.preventDefault();
           document.getElementById("flashcard-click-target")?.click();
           break;
-        case "ArrowRight": goNext(); break;
-        case "ArrowLeft":  goPrev(); break;
-        case "1": rateCard("incorrect"); break;
-        case "2": rateCard("hard");      break;
-        case "3": rateCard("easy");      break;
-        case "4": rateCard("correct");   break;
+        case "ArrowRight":
+          goNext();
+          break;
+        case "ArrowLeft":
+          goPrev();
+          break;
+        case "1":
+          rateCard("incorrect");
+          break;
+        case "2":
+          rateCard("hard");
+          break;
+        case "3":
+          rateCard("easy");
+          break;
+        case "4":
+          rateCard("correct");
+          break;
       }
     }
     window.addEventListener("keydown", handleKey);
@@ -99,10 +115,10 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
   }, [goNext, goPrev, rateCard]);
 
   const correct = session.progress.filter(
-    (p) => p.rating === "correct" || p.rating === "easy"
+    (p) => p.rating === "correct" || p.rating === "easy",
   ).length;
   const incorrect = session.progress.filter(
-    (p) => p.rating === "incorrect" || p.rating === "hard"
+    (p) => p.rating === "incorrect" || p.rating === "hard",
   ).length;
 
   return (
@@ -125,6 +141,19 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
 
         {/* Actions */}
         <div className="flex items-center gap-1.5">
+          {!isFinished && (
+            <IconBtn
+              onClick={() => setShowCardGrid(!showCardGrid)}
+              title="Toggle card overview"
+              className={
+                showCardGrid
+                  ? "border-indigo-500/30 bg-indigo-500/10 text-indigo-400"
+                  : ""
+              }
+            >
+              <Grid3X3 className="h-3.5 w-3.5" />
+            </IconBtn>
+          )}
           <IconBtn onClick={shuffle} title="Shuffle & restart">
             <Shuffle className="h-3.5 w-3.5" />
           </IconBtn>
@@ -145,6 +174,25 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
         incorrect={incorrect}
       />
 
+      {/* ── Card Grid (toggle) ──────────────────────────────────── */}
+      <AnimatePresence>
+        {!isFinished && showCardGrid && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <CardGrid
+              deck={deck}
+              progress={session.progress}
+              currentIndex={currentIndex}
+              onCardClick={goTo}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Card / Finished ──────────────────────────────────────── */}
       {isFinished ? (
         <motion.div
@@ -153,7 +201,9 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
           transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
           className="flex flex-col items-center gap-8 py-14 text-center"
         >
-          <span className="text-6xl select-none" aria-hidden>🎉</span>
+          <span className="text-6xl select-none" aria-hidden>
+            🎉
+          </span>
 
           <div className="space-y-1">
             <h3 className="text-3xl font-bold text-zinc-100">Deck Complete!</h3>
@@ -206,8 +256,7 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
         <>
           {/* Card counter pill */}
           <p className="text-center text-xs text-zinc-600 tabular-nums">
-            {currentIndex + 1}{" "}
-            <span className="text-zinc-700">/</span>{" "}
+            {currentIndex + 1} <span className="text-zinc-700">/</span>{" "}
             {totalCount}
           </p>
 
@@ -229,7 +278,7 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
                 "flex items-center gap-1.5 rounded-xl border border-white/8 bg-white/[0.025] px-4 py-2 text-xs font-medium transition-all",
                 currentIndex === 0
                   ? "opacity-30 cursor-not-allowed"
-                  : "text-zinc-400 hover:border-white/16 hover:text-zinc-200 active:scale-95"
+                  : "text-zinc-400 hover:border-white/16 hover:text-zinc-200 active:scale-95",
               )}
             >
               <ChevronLeft className="h-3.5 w-3.5" /> Prev
@@ -241,7 +290,7 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
                 "flex items-center gap-1.5 rounded-xl border border-white/8 bg-white/[0.025] px-4 py-2 text-xs font-medium transition-all",
                 currentIndex === totalCount - 1
                   ? "opacity-30 cursor-not-allowed"
-                  : "text-zinc-400 hover:border-white/16 hover:text-zinc-200 active:scale-95"
+                  : "text-zinc-400 hover:border-white/16 hover:text-zinc-200 active:scale-95",
               )}
             >
               Next <ChevronRight className="h-3.5 w-3.5" />

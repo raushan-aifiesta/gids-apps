@@ -106,6 +106,7 @@ export function useStudySession(deck: Deck) {
     goPrev,
     shuffle,
     restart,
+    deck,
   };
 }
 
