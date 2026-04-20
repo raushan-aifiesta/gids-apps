@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Flashcard Engine
 
-## Getting Started
+An AI-powered flashcard study app. Upload a PDF, get flashcards generated automatically, then study them with three distinct interaction modes.
 
-First, run the development server:
+## Features
+
+### PDF → Flashcards Pipeline
+1. Upload a PDF (with optional page-range selection for large files)
+2. Text is extracted client-side (pdf.js + Tesseract.js OCR fallback)
+3. Cards are generated via `google/gemini-2-5-flash` — mix of Q&A and fill-in-the-blank
+4. A refinement pass improves card quality before the study session begins
+
+### Study Modes
+
+#### Classic
+Flip cards to reveal the answer, then self-rate on a 4-point scale (Incorrect → Hard → Easy → Correct). Supports swipe gestures on mobile and keyboard shortcuts on desktop.
+
+#### Type to Answer
+Instead of flipping, type your answer into a text field and submit. Claude (`claude-sonnet-4-6`) grades your response and returns:
+- An accuracy score (0–100%)
+- 1–2 sentences of feedback
+- A suggested rating pre-highlighted on the rating buttons
+
+You can confirm the AI's suggestion or override it with any rating before moving on.
+
+#### Feynman Mode
+Explain the concept in plain language — no jargon, no circular definitions. Claude evaluates **conceptual clarity**, not keyword matching:
+- If your explanation uses jargon without grounding it, Claude pushes back with a follow-up question (e.g. "You used 'osmosis' — what's actually happening to the molecules?")
+- You respond to the follow-up in the same input
+- After a satisfactory explanation (or 2 follow-up rounds), Claude gives a final grade and suggested rating
+
+### Contextual Hinting (Nudge)
+In Type to Answer and Feynman modes, if you haven't typed anything for 10 seconds, a "Need a nudge?" button appears. Clicking it fetches a single minimal hint — the first letter, a category clue, or a one-word association — without revealing the answer. One hint per card, and `hintUsed` is recorded on the card's grade result.
+
+### Other Features
+- Card grid overview with color-coded completion status — jump to any card
+- Session persistence via localStorage — resume where you left off
+- Export deck to Anki-compatible CSV
+- Shuffle and restart controls
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+cd flashcard-engine
+pnpm install
+cp .env.local.example .env.local   # fill in values
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Description |
+|----------|-------------|
+| `MESH_API_KEY` | API key for the Mesh LLM gateway |
+| `MESH_API_URL` | Mesh API base URL (defaults to `http://localhost:8000/v1`) |
 
-## Learn More
+## AI Models Used
 
-To learn more about Next.js, take a look at the following resources:
+| Task | Model |
+|------|-------|
+| Flashcard generation | `google/gemini-2-5-flash` |
+| Flashcard refinement | `google/gemini-2-5-flash` |
+| Answer grading (Type to Answer + Feynman) | `anthropic/claude-sonnet-4-6` |
+| Hint generation | `anthropic/claude-sonnet-4-6` |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+All LLM calls go through Next.js API routes — the browser never sees API keys.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tech Stack
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js 16 (App Router), React 19, TypeScript
+- Tailwind 4, Framer Motion (card flip animations)
+- pdf.js + Tesseract.js (client-side PDF extraction + OCR)
+- OpenAI SDK (Mesh-compatible), Zod, nanoid

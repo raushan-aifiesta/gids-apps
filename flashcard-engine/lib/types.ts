@@ -2,6 +2,8 @@ export type CardType = "qa" | "cloze";
 
 export type CardRating = "correct" | "incorrect" | "easy" | "hard" | "skipped";
 
+export type StudyMode = "classic" | "type-answer" | "feynman";
+
 export interface Flashcard {
   id: string;
   type: CardType;
@@ -17,10 +19,26 @@ export interface Deck {
   createdAt: number;
 }
 
+export interface CardGradeResult {
+  score: number;
+  feedback: string;
+  suggestedRating: CardRating;
+  hintUsed: boolean;
+  modelExplanation?: string;
+}
+
+export interface FeynmanTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export interface CardProgress {
   cardId: string;
   rating: CardRating;
   reviewedAt: number;
+  userAnswer?: string;
+  gradeResult?: CardGradeResult;
+  feynmanConversation?: FeynmanTurn[];
 }
 
 export interface StudySession {

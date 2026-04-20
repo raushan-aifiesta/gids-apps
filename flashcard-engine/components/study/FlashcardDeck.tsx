@@ -17,7 +17,7 @@ import {
   Download,
   Grid3X3,
 } from "lucide-react";
-import type { CardRating, Deck } from "@/lib/types";
+import type { CardRating, Deck, StudyMode } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 interface FlashcardDeckProps {
@@ -53,16 +53,28 @@ function IconBtn({
   );
 }
 
+const MODE_OPTIONS: { value: StudyMode; label: string; description: string }[] = [
+  { value: "classic", label: "Classic", description: "Flip cards, self-rate" },
+  { value: "type-answer", label: "Type to Answer", description: "AI grades your answer" },
+  { value: "feynman", label: "Feynman", description: "Explain it simply — AI pushes back" },
+];
+
 export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
   const [showCardGrid, setShowCardGrid] = useState(true);
   const {
     currentCard,
+    currentProgress,
     currentIndex,
     reviewedCount,
     totalCount,
     isFinished,
     session,
+    studyMode,
+    isGrading,
+    feynmanFollowUp,
     rateCard,
+    submitAnswer,
+    setStudyMode,
     goNext,
     goPrev,
     goTo,
@@ -80,11 +92,12 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
     if (!isFinished) confettiFired.current = false;
   }, [isFinished]);
 
-  // Keyboard controls
+  // Keyboard controls — only in classic mode to avoid conflicting with textarea
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement).tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (studyMode !== "classic") return;
       switch (e.key) {
         case " ":
           e.preventDefault();
@@ -112,7 +125,7 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [goNext, goPrev, rateCard]);
+  }, [goNext, goPrev, rateCard, studyMode]);
 
   const correct = session.progress.filter(
     (p) => p.rating === "correct" || p.rating === "easy",
@@ -125,7 +138,6 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
     <div className="flex flex-col gap-5 w-full">
       {/* ── Header bar ──────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3">
-        {/* Back */}
         <button
           onClick={onBack}
           className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-zinc-400 transition-colors hover:text-zinc-200"
@@ -134,12 +146,10 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
           <span className="hidden sm:inline">Back</span>
         </button>
 
-        {/* Deck title */}
         <h2 className="truncate text-sm font-semibold text-zinc-200 max-w-[160px] sm:max-w-xs">
           {deck.title}
         </h2>
 
-        {/* Actions */}
         <div className="flex items-center gap-1.5">
           {!isFinished && (
             <IconBtn
@@ -165,6 +175,27 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
           </IconBtn>
         </div>
       </div>
+
+      {/* ── Study Mode Selector ──────────────────────────────────── */}
+      {!isFinished && (
+        <div className="flex rounded-xl border border-white/8 bg-white/[0.02] p-1 gap-1">
+          {MODE_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setStudyMode(opt.value)}
+              title={opt.description}
+              className={cn(
+                "flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150 text-center leading-tight",
+                studyMode === opt.value
+                  ? "bg-white/10 text-white border border-white/10"
+                  : "text-zinc-500 hover:text-zinc-300"
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* ── Progress bar ─────────────────────────────────────────── */}
       <ProgressBar
@@ -212,7 +243,6 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
             </p>
           </div>
 
-          {/* Score tiles */}
           <div className="flex gap-4">
             <div className="flex flex-col items-center gap-1 rounded-2xl border border-emerald-500/20 bg-emerald-500/8 px-8 py-5">
               <span className="text-3xl font-bold text-emerald-400">
@@ -254,22 +284,26 @@ export function FlashcardDeck({ deck, onBack }: FlashcardDeckProps) {
         </motion.div>
       ) : (
         <>
-          {/* Card counter pill */}
           <p className="text-center text-xs text-zinc-600 tabular-nums">
             {currentIndex + 1} <span className="text-zinc-700">/</span>{" "}
             {totalCount}
           </p>
 
-          {/* The flashcard */}
           {currentCard && (
             <FlashcardCard
               card={currentCard}
               onRate={(r: CardRating) => rateCard(r)}
               cardKey={currentCard.id}
+              studyMode={studyMode}
+              isGrading={isGrading}
+              feynmanFollowUp={feynmanFollowUp}
+              feynmanConversation={currentProgress?.feynmanConversation ?? []}
+              gradeResult={currentProgress?.gradeResult ?? null}
+              onSubmitAnswer={submitAnswer}
             />
           )}
 
-          {/* Navigation */}
+          {/* Navigation — shown in all modes */}
           <div className="flex justify-center gap-3 pt-1">
             <button
               onClick={goPrev}

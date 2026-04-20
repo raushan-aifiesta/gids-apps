@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 
 interface RatingButtonsProps {
   onRate: (rating: CardRating) => void;
+  highlightedRating?: CardRating;
 }
 
 const RATINGS: {
@@ -54,28 +55,36 @@ const RATINGS: {
   },
 ];
 
-export function RatingButtons({ onRate }: RatingButtonsProps) {
+export function RatingButtons({ onRate, highlightedRating }: RatingButtonsProps) {
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3 w-full max-w-lg">
-      {RATINGS.map(({ rating, label, key, color, bg, border, glow }) => (
-        <button
-          key={rating}
-          onClick={() => onRate(rating)}
-          className={cn(
-            "flex flex-col items-center justify-center gap-1 rounded-xl border px-3 py-3 sm:py-3.5",
-            "transition-all duration-150 cursor-pointer select-none",
-            "bg-white/[0.025]",
-            bg,
-            border,
-            glow
-          )}
-        >
-          <span className={cn("text-sm font-semibold tracking-wide", color)}>
-            {label}
-          </span>
-          <kbd className="text-[0.6rem] opacity-50">{key}</kbd>
-        </button>
-      ))}
+      {RATINGS.map(({ rating, label, key, color, bg, border, glow }) => {
+        const isHighlighted = highlightedRating === rating;
+        return (
+          <button
+            key={rating}
+            onClick={() => onRate(rating)}
+            className={cn(
+              "flex flex-col items-center justify-center gap-1 rounded-xl border px-3 py-3 sm:py-3.5",
+              "transition-all duration-150 cursor-pointer select-none",
+              "bg-white/[0.025]",
+              bg,
+              border,
+              glow,
+              isHighlighted && "ring-2 ring-white/40 ring-offset-1 ring-offset-transparent scale-[1.04]"
+            )}
+          >
+            <span className={cn("text-sm font-semibold tracking-wide", color)}>
+              {label}
+            </span>
+            {isHighlighted ? (
+              <span className="text-[0.6rem] text-white/50">AI ✓</span>
+            ) : (
+              <kbd className="text-[0.6rem] opacity-50">{key}</kbd>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -64,7 +64,7 @@ export default function ResultsStep({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         sessionId: session.sessionId,
-        nickname: "Anonymous",
+        nickname: session.nickname,
         score: finalScore.overall,
         mode: session.mode,
         rank: finalScore.rank,

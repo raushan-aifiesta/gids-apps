@@ -18,6 +18,7 @@ import type { InterviewMode } from "@/lib/types";
 import { apiPath } from "@/lib/basePath";
 
 const schema = z.object({
+  nickname: z.string().max(30).optional(),
   role: z.string().max(60).optional(),
   totalQuestions: z.coerce.number().min(3).max(10),
 });
@@ -29,6 +30,7 @@ interface Props {
     mode: InterviewMode;
     resumeText?: string;
     role?: string;
+    nickname?: string;
     totalQuestions: number;
   }) => void;
   loading: boolean;
@@ -88,6 +90,7 @@ export default function WelcomeStep({ onStart, loading }: Props) {
       mode,
       resumeText,
       role: values.role?.trim() || undefined,
+      nickname: values.nickname?.trim() || undefined,
       totalQuestions: values.totalQuestions,
     });
   };
@@ -115,6 +118,22 @@ export default function WelcomeStep({ onStart, loading }: Props) {
 
       <div className="bg-slate-900/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 md:p-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Nickname (optional) */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Your name{" "}
+              <span className="text-slate-500 font-normal">(optional)</span>
+            </label>
+            <input
+              {...register("nickname")}
+              placeholder="e.g. Ananthu, dev_ninja, anonymous"
+              className="w-full px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition"
+            />
+            <p className="mt-1.5 text-xs text-slate-600">
+              This name will appear on the leaderboard.
+            </p>
+          </div>
+
           {/* Role (optional) */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">

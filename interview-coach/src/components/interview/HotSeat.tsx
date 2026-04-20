@@ -25,6 +25,7 @@ export interface SessionState {
   mode: InterviewMode;
   skills: string[];
   role: string;
+  nickname: string;
   totalQuestions: number;
   currentQuestion: Question;
   answers: AnswerRecord[];
@@ -45,6 +46,7 @@ export default function HotSeat() {
       mode: InterviewMode;
       resumeText?: string;
       role?: string;
+      nickname?: string;
       totalQuestions: number;
     }) => {
       setLoading(true);
@@ -65,6 +67,7 @@ export default function HotSeat() {
           mode: params.mode,
           skills: data.skills,
           role: data.role,
+          nickname: params.nickname ?? "Anonymous",
           totalQuestions: params.totalQuestions,
           currentQuestion: data.firstQuestion,
           answers: [],
