@@ -65,6 +65,13 @@ const APPS: App[] = [
     href: "/apps/screen-sync",
     glyph: "⊞",
   },
+  {
+    name: "Careers",
+    tag: "JOIN THE TEAM",
+    tagline: "Work on the routing layer that powers every app on this page.",
+    href: "/careers",
+    glyph: "✺",
+  },
 ];
 
 export function AppGrid() {
