@@ -1,0 +1,33 @@
+{
+  "name": "emoji-charades",
+  "version": "1.0.0",
+  "description": "Emoji Charades — guess the title from emojis. Powered by Mesh API.",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "packageManager": "pnpm@10.32.1",
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "autoprefixer": "^10.4.27",
+    "geist": "^1.7.0",
+    "nanoid": "^5.1.7",
+    "next": "^16.2.2",
+    "openai": "^6.33.0",
+    "postcss": "^8.5.8",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^10.2.0",
+    "eslint-config-next": "^16.2.2"
+  }
+}

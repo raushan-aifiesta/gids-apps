@@ -66,6 +66,13 @@ const APPS: App[] = [
     glyph: "⊞",
   },
   {
+    name: "Emoji Charades",
+    tag: "GAME",
+    tagline: "AI emojifies a movie, song, or book. Guess it in 3 tries.",
+    href: "/apps/emoji-charades",
+    glyph: "🎲",
+  },
+  {
     name: "Careers",
     tag: "JOIN THE TEAM",
     tagline: "Work on the routing layer that powers every app on this page.",
