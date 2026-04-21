@@ -5,14 +5,14 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Apps built with Mesh API",
+  title: "Apps you can build with Mesh API",
   description:
     "Real apps powered by Mesh API — one OpenAI-compatible endpoint for every AI model.",
   icons: {
     icon: "/favicon.svg",
   },
   openGraph: {
-    title: "Apps built with Mesh API",
+    title: "Apps you can build with Mesh API",
     description:
       "Real apps powered by Mesh API — one OpenAI-compatible endpoint for every AI model.",
     images: ["/mesh_api_logo_main_dark_theme.svg"],
