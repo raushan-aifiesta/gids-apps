@@ -7,11 +7,10 @@ export const WHY_AI_OPTIONS = [
 ] as const;
 
 export const TOKENS_OPTIONS = [
-  "< 100K",
-  "100K – 1M",
-  "1M – 10M",
-  "10M – 100M",
-  "100M+",
+  "< 1M",
+  "1M – 100M",
+  "100M – 1B",
+  "1B+",
 ] as const;
 
 export type WhyAI = (typeof WHY_AI_OPTIONS)[number];

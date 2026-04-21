@@ -205,7 +205,7 @@ function ContactForm() {
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-baseline justify-between">
-          <Label>Why AI?</Label>
+          <Label>What&apos;s your AI use case?</Label>
           <span className="text-[10px] text-muted-foreground/70">Optional</span>
         </div>
         <Select value={why} onValueChange={(v) => setWhy(v as WhyAI)}>
