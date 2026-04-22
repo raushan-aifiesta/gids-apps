@@ -66,13 +66,6 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
-    if (description.length > 4000) {
-      return NextResponse.json(
-        { error: "Description too long. Please keep it under 4000 characters." },
-        { status: 400 },
-      );
-    }
-
     const tone: ToneId | undefined =
       body.tone && VALID_TONES.has(body.tone) ? (body.tone as ToneId) : undefined;
 
@@ -96,25 +89,41 @@ export async function POST(req: Request) {
       ],
     });
 
+    // Give up a little before Vercel's maxDuration wall so we always get to
+    // salvage + serialize the response instead of being killed mid-flight.
+    const deadline = Date.now() + 270_000;
     let raw = "";
+    let truncated = false;
     for await (const chunk of stream) {
       const delta = chunk.choices[0]?.delta?.content;
       if (delta) raw += delta;
+      if (Date.now() > deadline) {
+        truncated = true;
+        try {
+          // openai sdk supports .controller.abort() on the stream
+          (stream as unknown as { controller?: AbortController }).controller?.abort();
+        } catch {}
+        break;
+      }
     }
     const html = extractHtml(raw);
 
     if (!html) {
-      console.error("[/api/generate] non-HTML output preview:", raw.slice(0, 500));
+      console.error(
+        "[/api/generate] non-HTML output",
+        { truncated, rawLen: raw.length, preview: raw.slice(0, 400) },
+      );
       return NextResponse.json(
         {
-          error:
-            "Model output wasn't a valid HTML document. Try rephrasing the description or regenerate.",
+          error: truncated
+            ? "Generation took too long and was cut off before producing valid HTML. Try a shorter brief or regenerate."
+            : "Model output wasn't a valid HTML document. Try rephrasing the description or regenerate.",
         },
         { status: 502 },
       );
     }
 
-    return NextResponse.json({ html, model: MODEL, tone });
+    return NextResponse.json({ html, model: MODEL, tone, truncated });
   } catch (err) {
     console.error("[/api/generate] error:", err);
     return NextResponse.json(

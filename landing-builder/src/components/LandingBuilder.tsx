@@ -91,7 +91,17 @@ export function LandingBuilder() {
           tone: tone || undefined,
         }),
       });
-      const data = (await res.json()) as { html?: string; tone?: ToneId; error?: string };
+      const rawBody = await res.text();
+      let data: { html?: string; tone?: ToneId; error?: string } = {};
+      try {
+        data = rawBody ? JSON.parse(rawBody) : {};
+      } catch {
+        // Server returned a non-JSON body (e.g. Next's "Internal Server Error"
+        // plain-text page when the runtime crashed). Surface it verbatim.
+        throw new Error(
+          rawBody.slice(0, 200) || `Generation failed (${res.status})`,
+        );
+      }
       if (!res.ok || !data.html) {
         throw new Error(data.error || `Generation failed (${res.status})`);
       }
