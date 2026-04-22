@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
   try {
     const completion = await meshClient.chat.completions.create(
       {
-        model: "anthropic/claude-sonnet-4-6",
+        model: "anthropic/claude-sonnet-4.6",
         temperature: 0.1,
         messages,
       },

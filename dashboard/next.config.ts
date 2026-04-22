@@ -10,6 +10,7 @@ const SUBAPPS = [
   { path: "apps/invoice-processor",   envKey: "NEXT_PUBLIC_INVOICE_DEPLOYMENT",         devPort: 4007 },
   { path: "apps/screen-sync",         envKey: "NEXT_PUBLIC_SCREEN_SYNC_DEPLOYMENT",     devPort: 4008 },
   { path: "apps/emoji-charades",      envKey: "NEXT_PUBLIC_EMOJI_CHARADES_DEPLOYMENT",  devPort: 4009 },
+  { path: "apps/landing-builder",     envKey: "NEXT_PUBLIC_LANDING_BUILDER_DEPLOYMENT", devPort: 4010 },
 ] as const;
 
 // In prod, missing env var → skip this sub-app's rewrites (its card 404s until the var is set).

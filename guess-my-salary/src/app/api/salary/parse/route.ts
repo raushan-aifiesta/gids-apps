@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     const completion = await meshClient.chat.completions.create({
-      model: "google/gemini-2-5-flash",
+      model: "google/gemini-2.0-flash-001",
       temperature: 0.1,
       messages: [
         {

@@ -73,6 +73,13 @@ const APPS: App[] = [
     glyph: "🎲",
   },
   {
+    name: "Landing Page Builder",
+    tag: "GENERATION · HTML",
+    tagline: "Describe your product, ship a ready-to-deploy Tailwind landing page.",
+    href: "/apps/landing-builder",
+    glyph: "◧",
+  },
+  {
     name: "Careers",
     tag: "JOIN THE TEAM",
     tagline: "Work on the routing layer that powers every app on this page.",

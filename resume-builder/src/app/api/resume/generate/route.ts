@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     }
 
     const parseResponse = await meshClient.chat.completions.create({
-      model: "google/gemini-2-5-flash",
+      model: "google/gemini-2.0-flash-001",
       temperature: 0.1,
       messages: [
         { role: "system", content: EXTRACT_PROFILE_SYSTEM_PROMPT },
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
 
     // ── Step 2: Generate polished resume content (Claude Sonnet 4.6) ────────
     const generateResponse = await meshClient.chat.completions.create({
-      model: "anthropic/claude-sonnet-4-6",
+      model: "anthropic/claude-sonnet-4.6",
       temperature: 0.4,
       messages: [
         { role: "system", content: GENERATE_RESUME_SYSTEM_PROMPT },

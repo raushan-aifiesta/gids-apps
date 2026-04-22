@@ -27,8 +27,8 @@ const meshClient = new OpenAI({
 });
 
 // Model routing — use fast model for structured tasks, strong model for evals
-const FAST_MODEL = "google/gemini-2-5-flash";
-const STRONG_MODEL = "anthropic/claude-sonnet-4-6";
+const FAST_MODEL = "google/gemini-2.0-flash-001";
+const STRONG_MODEL = "anthropic/claude-sonnet-4.6";
 
 // ─── Extract skills from resume text ────────────────────────────────────────
 export async function extractResumeSkills(
