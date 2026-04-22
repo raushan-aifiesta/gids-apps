@@ -16,7 +16,9 @@ type FilterType = "free" | "hide_unavailable";
 
 export function ModelPicker({ open, onClose }: Props) {
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState<Set<FilterType>>(new Set(["hide_unavailable"]));
+  const [filters, setFilters] = useState<Set<FilterType>>(
+    new Set(["hide_unavailable"]),
+  );
   // hoveredModel is set per-row and only cleared when cursor leaves the entire left panel
   const [hoveredModel, setHoveredModel] = useState<MeshModel | null>(null);
 
@@ -74,7 +76,7 @@ export function ModelPicker({ open, onClose }: Props) {
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
             <div
-              className="bg-white rounded-2xl shadow-2xl border border-gray-200 flex overflow-hidden relative w-full md:w-[720px] max-h-[85vh] md:max-h-[70vh]"
+              className="bg-white rounded-2xl shadow-2xl border border-gray-200 flex overflow-hidden relative w-full md:w-[720px] h-[85vh] md:h-[70vh]"
               onClick={(e) => e.stopPropagation()}
               onMouseLeave={() => setHoveredModel(null)}
             >
@@ -84,7 +86,14 @@ export function ModelPicker({ open, onClose }: Props) {
                 className="absolute top-3 right-3 z-10 flex items-center justify-center w-7 h-7 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 title="Close"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
@@ -95,7 +104,14 @@ export function ModelPicker({ open, onClose }: Props) {
                 {/* Search */}
                 <div className="px-4 pt-4 pb-3 border-b border-gray-100">
                   <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2">
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#9ca3af"
+                      strokeWidth="2"
+                    >
                       <circle cx="11" cy="11" r="8" />
                       <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
@@ -168,14 +184,23 @@ export function ModelPicker({ open, onClose }: Props) {
                             }`}
                           >
                             <ProviderAvatar modelId={model.id} size={28} />
-                            <span className="text-sm text-gray-800 flex-1 truncate">{model.name}</span>
+                            <span className="text-sm text-gray-800 flex-1 truncate">
+                              {model.name}
+                            </span>
                             {model.is_free && (
                               <span className="text-xs px-1.5 py-0.5 bg-green-50 text-green-600 rounded font-medium">
                                 Free
                               </span>
                             )}
                             {isSelected && (
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5">
+                              <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="#3b82f6"
+                                strokeWidth="2.5"
+                              >
                                 <polyline points="20 6 9 17 4 12" />
                               </svg>
                             )}
@@ -214,28 +239,38 @@ export function ModelPicker({ open, onClose }: Props) {
 
                       {hoveredModel.context_length && (
                         <div className="mb-3">
-                          <p className="text-xs font-medium text-gray-400 mb-1">Context</p>
+                          <p className="text-xs font-medium text-gray-400 mb-1">
+                            Context
+                          </p>
                           <p className="text-xs text-gray-700">
-                            {(hoveredModel.context_length / 1000).toFixed(0)}K tokens
+                            {(hoveredModel.context_length / 1000).toFixed(0)}K
+                            tokens
                           </p>
                         </div>
                       )}
 
                       {hoveredModel.pricing && (
                         <div>
-                          <p className="text-xs font-medium text-gray-400 mb-1">Pricing</p>
+                          <p className="text-xs font-medium text-gray-400 mb-1">
+                            Pricing
+                          </p>
                           {hoveredModel.is_free ? (
-                            <p className="text-xs text-green-600 font-medium">Free</p>
+                            <p className="text-xs text-green-600 font-medium">
+                              Free
+                            </p>
                           ) : (
                             <div className="space-y-0.5">
                               {hoveredModel.pricing.prompt_usd_per_1k && (
                                 <p className="text-xs text-gray-600">
-                                  Input: ${hoveredModel.pricing.prompt_usd_per_1k}/1K
+                                  Input: $
+                                  {hoveredModel.pricing.prompt_usd_per_1k}/1K
                                 </p>
                               )}
                               {hoveredModel.pricing.completion_usd_per_1k && (
                                 <p className="text-xs text-gray-600">
-                                  Output: ${hoveredModel.pricing.completion_usd_per_1k}/1K
+                                  Output: $
+                                  {hoveredModel.pricing.completion_usd_per_1k}
+                                  /1K
                                 </p>
                               )}
                             </div>
@@ -280,7 +315,9 @@ function FilterChip({
     <button
       onClick={onClick}
       className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
-        active ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+        active
+          ? "bg-indigo-600 text-white"
+          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
       }`}
     >
       {label}

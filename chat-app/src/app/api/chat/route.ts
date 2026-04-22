@@ -8,24 +8,32 @@ const meshClient = new OpenAI({
 });
 
 // Model IDs that need remapping to match the upstream provider's naming
-const MODEL_ALIASES: Record<string, string> = {
-  "anthropic/claude-opus-4.7": "anthropic/claude-opus-4-7",
-};
+const MODEL_ALIASES: Record<string, string> = {};
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { model, messages } = body;
   const resolvedModel = MODEL_ALIASES[model] ?? model;
 
-  console.log("[/api/chat] POST received", { model, resolvedModel, messageCount: messages?.length });
-  console.log("[/api/chat] Using baseURL:", process.env.MESH_API_URL ?? "http://localhost:8000/v1");
+  console.log("[/api/chat] POST received", {
+    model,
+    resolvedModel,
+    messageCount: messages?.length,
+  });
+  console.log(
+    "[/api/chat] Using baseURL:",
+    process.env.MESH_API_URL ?? "http://localhost:8000/v1",
+  );
 
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        console.log("[/api/chat] Opening stream to upstream for model:", resolvedModel);
+        console.log(
+          "[/api/chat] Opening stream to upstream for model:",
+          resolvedModel,
+        );
 
         const completion = meshClient.chat.completions.stream({
           model: resolvedModel,
@@ -37,10 +45,13 @@ export async function POST(req: NextRequest) {
         for await (const chunk of completion) {
           chunkCount++;
           if (chunkCount <= 3) {
-            console.log(`[/api/chat] chunk #${chunkCount}:`, JSON.stringify(chunk).slice(0, 120));
+            console.log(
+              `[/api/chat] chunk #${chunkCount}:`,
+              JSON.stringify(chunk).slice(0, 120),
+            );
           }
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`)
+            encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`),
           );
         }
 
@@ -50,8 +61,8 @@ export async function POST(req: NextRequest) {
         console.error("[/api/chat] Stream error:", err);
         controller.enqueue(
           encoder.encode(
-            `data: ${JSON.stringify({ error: err instanceof Error ? err.message : String(err) })}\n\n`
-          )
+            `data: ${JSON.stringify({ error: err instanceof Error ? err.message : String(err) })}\n\n`,
+          ),
         );
       } finally {
         controller.close();
