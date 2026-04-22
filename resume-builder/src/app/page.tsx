@@ -48,7 +48,7 @@ export default function Home() {
             className="inline-flex items-center gap-2 bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full mb-4"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-            Powered by Claude Sonnet 4.6 · Apify
+            Powered by Mesh API · Apify
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: -8 }}
