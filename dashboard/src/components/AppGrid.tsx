@@ -80,6 +80,13 @@ const APPS: App[] = [
     glyph: "◧",
   },
   {
+    name: "Mesh App Builder",
+    tag: "GENERATION · REACT",
+    tagline: "Describe an app, watch Mesh build and run it live in a sandbox. Chat to edit.",
+    href: "/apps/mesh-app-builder",
+    glyph: "❖",
+  },
+  {
     name: "Careers",
     tag: "JOIN THE TEAM",
     tagline: "Work on the routing layer that powers every app on this page.",
