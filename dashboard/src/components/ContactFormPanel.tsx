@@ -31,6 +31,7 @@ export function ContactFormPanel() {
 function ContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
   const [why, setWhy] = useState<WhyAI | "">("");
   const [tokens, setTokens] = useState<TokensRange | "">("");
@@ -58,6 +59,7 @@ function ContactForm() {
     const payload: ContactPayload = {
       name: name || undefined,
       email: email || undefined,
+      phone: phone || undefined,
       company: company || undefined,
       why: why || undefined,
       tokens: tokens || undefined,
@@ -81,11 +83,12 @@ function ContactForm() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [name, email, company, why, tokens, done]);
+  }, [name, email, phone, company, why, tokens, done]);
 
   function resetForm() {
     setName("");
     setEmail("");
+    setPhone("");
     setCompany("");
     setWhy("");
     setTokens("");
@@ -119,6 +122,7 @@ function ContactForm() {
         {
           name: name.trim(),
           email: email.trim(),
+          phone: phone.trim() || undefined,
           company: company.trim() || undefined,
           why: why || undefined,
           tokens: tokens || undefined,
@@ -186,6 +190,21 @@ function ContactForm() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="jane@company.com"
           autoComplete="email"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-baseline justify-between">
+          <Label htmlFor="mesh-phone">Phone</Label>
+          <span className="text-[10px] text-muted-foreground/70">Optional</span>
+        </div>
+        <Input
+          id="mesh-phone"
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="+91 98765 43210"
+          autoComplete="tel"
         />
       </div>
 

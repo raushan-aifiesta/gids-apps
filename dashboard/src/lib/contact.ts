@@ -19,6 +19,7 @@ export type TokensRange = (typeof TOKENS_OPTIONS)[number];
 export interface ContactPayload {
   name?: string;
   email?: string;
+  phone?: string;
   company?: string;
   why?: WhyAI;
   tokens?: TokensRange;

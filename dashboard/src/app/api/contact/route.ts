@@ -11,6 +11,7 @@ const schema = z.object({
   id: idSchema.optional(),
   name: z.string().max(200).optional().or(z.literal("")),
   email: z.string().max(320).optional().or(z.literal("")),
+  phone: z.string().max(40).optional().or(z.literal("")),
   company: z.string().max(200).optional().or(z.literal("")),
   why: z.enum(WHY_AI_OPTIONS).optional(),
   tokens: z.enum(TOKENS_OPTIONS).optional(),
@@ -71,6 +72,7 @@ export async function POST(req: Request) {
       const update: Record<string, unknown> = { source, user_agent: userAgent, ip };
       if (data.name !== undefined) update.name = blankToNull(data.name);
       if (data.email !== undefined) update.email = emailValue;
+      if (data.phone !== undefined) update.phone = blankToNull(data.phone);
       if (data.company !== undefined) update.company = blankToNull(data.company);
       if (data.why !== undefined) update.why = data.why;
       if (data.tokens !== undefined) update.tokens = data.tokens;
@@ -89,6 +91,7 @@ export async function POST(req: Request) {
     const row = {
       name: blankToNull(data.name),
       email: emailValue,
+      phone: blankToNull(data.phone),
       company: blankToNull(data.company),
       why: data.why ?? null,
       tokens: data.tokens ?? null,
