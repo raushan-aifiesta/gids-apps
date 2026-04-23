@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { REFINE_SYSTEM_PROMPT, buildRefineUserMessage } from "@/lib/refinePrompt";
+import {
+  REFINE_SYSTEM_PROMPT,
+  buildRefineUserMessage,
+} from "@/lib/refinePrompt";
 import { FlashcardsResponseSchema } from "@/lib/schemas";
 import type { Flashcard } from "@/lib/types";
 
@@ -24,20 +27,23 @@ export async function POST(req: NextRequest) {
     ocrText = typeof body?.ocrText === "string" ? body.ocrText.trim() : "";
     cards = Array.isArray(body?.cards) ? body.cards : [];
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 
   if (!ocrText) {
     return NextResponse.json(
       { error: "Request body must include a non-empty 'ocrText' field" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (cards.length === 0) {
     return NextResponse.json(
       { error: "Request body must include a non-empty 'cards' array" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -47,7 +53,7 @@ export async function POST(req: NextRequest) {
   try {
     const completion = await meshClient.chat.completions.create(
       {
-        model: "google/gemini-2.0-flash-001",
+        model: "openai/gpt-4o",
         temperature: 0.1, // low temp — deterministic refinement
         messages: [
           { role: "system", content: REFINE_SYSTEM_PROMPT },
@@ -57,7 +63,7 @@ export async function POST(req: NextRequest) {
           },
         ],
       },
-      { signal: controller.signal }
+      { signal: controller.signal },
     );
 
     const raw = completion.choices[0]?.message?.content ?? "";
@@ -68,8 +74,11 @@ export async function POST(req: NextRequest) {
       parsed = JSON.parse(jsonStr);
     } catch {
       return NextResponse.json(
-        { error: "AI returned malformed JSON during refinement. Original cards preserved." },
-        { status: 422 }
+        {
+          error:
+            "AI returned malformed JSON during refinement. Original cards preserved.",
+        },
+        { status: 422 },
       );
     }
 
@@ -80,7 +89,7 @@ export async function POST(req: NextRequest) {
           error: "Refined response did not match expected schema.",
           details: result.error.flatten(),
         },
-        { status: 422 }
+        { status: 422 },
       );
     }
 
@@ -96,13 +105,13 @@ export async function POST(req: NextRequest) {
     if (err instanceof Error && err.name === "AbortError") {
       return NextResponse.json(
         { error: "Refinement timed out. Original cards preserved." },
-        { status: 504 }
+        { status: 504 },
       );
     }
     console.error("[flashcards/refine] Error:", err);
     return NextResponse.json(
       { error: "Refinement failed. Original cards preserved." },
-      { status: 500 }
+      { status: 500 },
     );
   } finally {
     clearTimeout(timeout);

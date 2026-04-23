@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
-import { LABOR_MARKET_ANALYST_SYSTEM_PROMPT, sanitizeJobAnalysis } from "@/lib/prompts";
+import {
+  LABOR_MARKET_ANALYST_SYSTEM_PROMPT,
+  sanitizeJobAnalysis,
+} from "@/lib/prompts";
 
 const meshClient = new OpenAI({
   baseURL: process.env.MESH_API_URL ?? "http://localhost:8000/v1",
@@ -10,27 +13,47 @@ const meshClient = new OpenAI({
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as Record<string, unknown>;
-    const jobTitle = typeof body.jobTitle === "string" ? body.jobTitle.trim() : "";
+    const jobTitle =
+      typeof body.jobTitle === "string" ? body.jobTitle.trim() : "";
     const context = (body.context ?? {}) as Record<string, string>;
 
     if (!jobTitle || jobTitle.length < 2) {
-      return NextResponse.json({ error: "A valid job title is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "A valid job title is required" },
+        { status: 400 },
+      );
     }
     if (jobTitle.length > 200) {
-      return NextResponse.json({ error: "Job title too long" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Job title too long" },
+        { status: 400 },
+      );
     }
 
     const contextLines: string[] = [];
-    if (context.workRoutine) contextLines.push(`Work routine: ${context.workRoutine.replace(/_/g, " ")}`);
-    if (context.humanConnection) contextLines.push(`Human connection dependency: ${context.humanConnection.replace(/_/g, " ")}`);
-    if (context.creativeJudgment) contextLines.push(`Creative judgment frequency: ${context.creativeJudgment}`);
-    if (context.outputType) contextLines.push(`Output type: ${context.outputType.replace(/_/g, " ")}`);
-    const contextSection = contextLines.length > 0
-      ? `\n\nUser context:\n${contextLines.join("\n")}`
-      : "";
+    if (context.workRoutine)
+      contextLines.push(
+        `Work routine: ${context.workRoutine.replace(/_/g, " ")}`,
+      );
+    if (context.humanConnection)
+      contextLines.push(
+        `Human connection dependency: ${context.humanConnection.replace(/_/g, " ")}`,
+      );
+    if (context.creativeJudgment)
+      contextLines.push(
+        `Creative judgment frequency: ${context.creativeJudgment}`,
+      );
+    if (context.outputType)
+      contextLines.push(
+        `Output type: ${context.outputType.replace(/_/g, " ")}`,
+      );
+    const contextSection =
+      contextLines.length > 0
+        ? `\n\nUser context:\n${contextLines.join("\n")}`
+        : "";
 
     const response = await meshClient.chat.completions.create({
-      model: "google/gemini-2.0-flash-001",
+      model: "openai/gpt-4o",
       temperature: 0.2,
       messages: [
         { role: "system", content: LABOR_MARKET_ANALYST_SYSTEM_PROMPT },

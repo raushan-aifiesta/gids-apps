@@ -24,12 +24,17 @@ type ToolCallMessage = {
   tool_calls?: Array<{ function: { name: string; arguments: string } }>;
 };
 
-function getForcedToolArguments(message: ToolCallMessage | undefined, name: string) {
+function getForcedToolArguments(
+  message: ToolCallMessage | undefined,
+  name: string,
+) {
   if (!message) {
     throw new Error(`Mesh did not return a completion message for ${name}.`);
   }
 
-  const toolCall = message.tool_calls?.find((call) => call.function.name === name);
+  const toolCall = message.tool_calls?.find(
+    (call) => call.function.name === name,
+  );
   if (!toolCall) {
     throw new Error(`Mesh did not return the required ${name} tool call.`);
   }
@@ -43,14 +48,18 @@ function getForcedToolArguments(message: ToolCallMessage | undefined, name: stri
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as { resumeText?: unknown; profile?: unknown; userContext?: unknown };
+    const body = (await req.json()) as {
+      resumeText?: unknown;
+      profile?: unknown;
+      userContext?: unknown;
+    };
     const resumeText =
       typeof body?.resumeText === "string" ? body.resumeText.trim() : "";
 
     if (!resumeText) {
       return NextResponse.json(
         { error: "resumeText is required." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -68,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     if (!profile) {
       const parseCompletion = await meshClient.chat.completions.create({
-        model: "google/gemini-2.0-flash-001",
+        model: "openai/gpt-4o",
         temperature: 0.1,
         messages: [
           {
@@ -83,7 +92,10 @@ export async function POST(req: NextRequest) {
       });
 
       profile = sanitizeResumeProfile(
-        getForcedToolArguments(parseCompletion.choices[0]?.message as ToolCallMessage, "parse_resume")
+        getForcedToolArguments(
+          parseCompletion.choices[0]?.message as ToolCallMessage,
+          "parse_resume",
+        ),
       );
     }
 
@@ -109,7 +121,10 @@ export async function POST(req: NextRequest) {
       });
 
       prediction = sanitizeSalaryPrediction(
-        getForcedToolArguments(predictCompletion.choices[0]?.message as ToolCallMessage, "predict_salary")
+        getForcedToolArguments(
+          predictCompletion.choices[0]?.message as ToolCallMessage,
+          "predict_salary",
+        ),
       );
     } catch {
       // Fallback to GPT-4o-mini
@@ -122,7 +137,10 @@ export async function POST(req: NextRequest) {
       });
 
       prediction = sanitizeSalaryPrediction(
-        getForcedToolArguments(fallbackCompletion.choices[0]?.message as ToolCallMessage, "predict_salary")
+        getForcedToolArguments(
+          fallbackCompletion.choices[0]?.message as ToolCallMessage,
+          "predict_salary",
+        ),
       );
     }
 
@@ -142,13 +160,18 @@ export async function POST(req: NextRequest) {
     });
 
     const explanation = sanitizeExplanation(
-      getForcedToolArguments(explainCompletion.choices[0]?.message as ToolCallMessage, "explain_salary")
+      getForcedToolArguments(
+        explainCompletion.choices[0]?.message as ToolCallMessage,
+        "explain_salary",
+      ),
     );
 
     return NextResponse.json({ profile, prediction, explanation });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Failed to analyze resume with MeshAPI.";
+      error instanceof Error
+        ? error.message
+        : "Failed to analyze resume with MeshAPI.";
 
     const status = message.includes("resumeText is required")
       ? 400

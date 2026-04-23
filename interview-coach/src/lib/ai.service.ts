@@ -27,7 +27,7 @@ const meshClient = new OpenAI({
 });
 
 // Model routing — use fast model for structured tasks, strong model for evals
-const FAST_MODEL = "google/gemini-2.0-flash-001";
+const FAST_MODEL = "openai/gpt-4o";
 const STRONG_MODEL = "anthropic/claude-sonnet-4.6";
 
 // ─── Extract skills from resume text ────────────────────────────────────────
@@ -39,7 +39,10 @@ export async function extractResumeSkills(
     temperature: 0.1,
     messages: [
       { role: "system", content: getSkillExtractionPrompt() },
-      { role: "user", content: `Resume text:\n\n${resumeText.slice(0, 12000)}` },
+      {
+        role: "user",
+        content: `Resume text:\n\n${resumeText.slice(0, 12000)}`,
+      },
     ],
   });
 
@@ -62,13 +65,25 @@ export async function generateQuestion(params: {
   mode: InterviewMode;
   skills: string[];
   role: string;
-  questionIndex: number;      // 1-based
+  questionIndex: number; // 1-based
   totalQuestions: number;
   previousCategories: string[]; // avoid repeating
 }): Promise<Question> {
-  const { mode, skills, role, questionIndex, totalQuestions, previousCategories } = params;
+  const {
+    mode,
+    skills,
+    role,
+    questionIndex,
+    totalQuestions,
+    previousCategories,
+  } = params;
 
-  const systemPrompt = getQuestionSystemPrompt(mode, skills, role, totalQuestions);
+  const systemPrompt = getQuestionSystemPrompt(
+    mode,
+    skills,
+    role,
+    totalQuestions,
+  );
   const userMessage =
     `Generate question #${questionIndex} of ${totalQuestions}. ` +
     (previousCategories.length > 0
@@ -91,10 +106,14 @@ export async function generateQuestion(params: {
   return {
     id: parsed.id ?? `q_${nanoid(6)}`,
     index: questionIndex,
-    text: parsed.text ?? "Describe a challenging technical problem you solved recently.",
+    text:
+      parsed.text ??
+      "Describe a challenging technical problem you solved recently.",
     category: parsed.category ?? "General",
     difficulty: parsed.difficulty ?? "medium",
-    expectedTopics: Array.isArray(parsed.expectedTopics) ? parsed.expectedTopics : [],
+    expectedTopics: Array.isArray(parsed.expectedTopics)
+      ? parsed.expectedTopics
+      : [],
   };
 }
 
@@ -128,7 +147,9 @@ export async function evaluateAnswer(params: {
     score: clamp(Number(parsed.score ?? 5), 1, 10),
     accuracy: clamp(Number(parsed.accuracy ?? 50), 0, 100),
     clarity: clamp(Number(parsed.clarity ?? 50), 0, 100),
-    whatYouMissed: Array.isArray(parsed.whatYouMissed) ? parsed.whatYouMissed : [],
+    whatYouMissed: Array.isArray(parsed.whatYouMissed)
+      ? parsed.whatYouMissed
+      : [],
     strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
     roastLine: parsed.roastLine,
     encouragement: parsed.encouragement,

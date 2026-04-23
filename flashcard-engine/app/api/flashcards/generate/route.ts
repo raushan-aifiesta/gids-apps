@@ -23,13 +23,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     text = typeof body?.text === "string" ? body.text.trim() : "";
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 
   if (!text) {
     return NextResponse.json(
       { error: "Request body must include a non-empty 'text' field" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -43,14 +46,14 @@ export async function POST(req: NextRequest) {
   try {
     const completion = await meshClient.chat.completions.create(
       {
-        model: "google/gemini-2.0-flash-001",
+        model: "openai/gpt-4o",
         temperature: 0.2,
         messages: [
           { role: "system", content: FLASHCARD_SYSTEM_PROMPT },
           { role: "user", content: buildUserMessage(text) },
         ],
       },
-      { signal: controller.signal }
+      { signal: controller.signal },
     );
 
     const raw = completion.choices[0]?.message?.content ?? "";
@@ -62,7 +65,7 @@ export async function POST(req: NextRequest) {
     } catch {
       return NextResponse.json(
         { error: "AI returned malformed JSON. Please try again." },
-        { status: 422 }
+        { status: 422 },
       );
     }
 
@@ -73,7 +76,7 @@ export async function POST(req: NextRequest) {
           error: "AI response did not match expected schema. Please try again.",
           details: result.error.flatten(),
         },
-        { status: 422 }
+        { status: 422 },
       );
     }
 
@@ -87,13 +90,13 @@ export async function POST(req: NextRequest) {
     if (err instanceof Error && err.name === "AbortError") {
       return NextResponse.json(
         { error: "Request timed out. Please try again." },
-        { status: 504 }
+        { status: 504 },
       );
     }
     console.error("[flashcards/generate] Error:", err);
     return NextResponse.json(
       { error: "Failed to generate flashcards. Please try again." },
-      { status: 500 }
+      { status: 500 },
     );
   } finally {
     clearTimeout(timeout);

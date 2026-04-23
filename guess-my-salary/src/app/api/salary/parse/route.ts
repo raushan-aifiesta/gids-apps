@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { PARSE_RESUME_TOOL, sanitizeResumeProfile, sanitizeQuestionPrefill } from "@/lib/salary";
+import {
+  PARSE_RESUME_TOOL,
+  sanitizeResumeProfile,
+  sanitizeQuestionPrefill,
+} from "@/lib/salary";
 
 export const runtime = "nodejs";
 
@@ -17,7 +21,8 @@ type ToolCallMessage = {
 
 function getToolArguments(message: ToolCallMessage | undefined, name: string) {
   const toolCall = message?.tool_calls?.find((c) => c.function.name === name);
-  if (!toolCall) throw new Error(`Mesh did not return the required ${name} tool call.`);
+  if (!toolCall)
+    throw new Error(`Mesh did not return the required ${name} tool call.`);
   try {
     return JSON.parse(toolCall.function.arguments) as unknown;
   } catch {
@@ -27,16 +32,19 @@ function getToolArguments(message: ToolCallMessage | undefined, name: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as { resumeText?: unknown };
+    const body = (await req.json()) as { resumeText?: unknown };
     const resumeText =
       typeof body?.resumeText === "string" ? body.resumeText.trim() : "";
 
     if (!resumeText) {
-      return NextResponse.json({ error: "resumeText is required." }, { status: 400 });
+      return NextResponse.json(
+        { error: "resumeText is required." },
+        { status: 400 },
+      );
     }
 
     const completion = await meshClient.chat.completions.create({
-      model: "google/gemini-2.0-flash-001",
+      model: "openai/gpt-4o",
       temperature: 0.1,
       messages: [
         {
@@ -50,7 +58,10 @@ export async function POST(req: NextRequest) {
       tool_choice: { type: "function", function: { name: "parse_resume" } },
     });
 
-    const raw = getToolArguments(completion.choices[0]?.message as ToolCallMessage, "parse_resume");
+    const raw = getToolArguments(
+      completion.choices[0]?.message as ToolCallMessage,
+      "parse_resume",
+    );
     const profile = sanitizeResumeProfile(raw);
     const prefill = sanitizeQuestionPrefill(raw);
 

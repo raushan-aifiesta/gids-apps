@@ -23,24 +23,28 @@ export async function POST(req: Request) {
     if (!linkedInData && !githubData && !documentText) {
       return NextResponse.json(
         { error: "At least one data source is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // ── Step 1: Extract structured profile (Gemini 2.5 Flash) ──────────────
     const sourceParts: string[] = [];
     if (linkedInData) {
-      sourceParts.push(`## LinkedIn Profile Data\n${JSON.stringify(linkedInData, null, 2)}`);
+      sourceParts.push(
+        `## LinkedIn Profile Data\n${JSON.stringify(linkedInData, null, 2)}`,
+      );
     }
     if (githubData) {
-      sourceParts.push(`## GitHub Profile Data\n${JSON.stringify(githubData, null, 2)}`);
+      sourceParts.push(
+        `## GitHub Profile Data\n${JSON.stringify(githubData, null, 2)}`,
+      );
     }
     if (documentText) {
       sourceParts.push(`## Uploaded Document Text\n${documentText}`);
     }
 
     const parseResponse = await meshClient.chat.completions.create({
-      model: "google/gemini-2.0-flash-001",
+      model: "openai/gpt-4o",
       temperature: 0.1,
       messages: [
         { role: "system", content: EXTRACT_PROFILE_SYSTEM_PROMPT },
@@ -56,8 +60,12 @@ export async function POST(req: Request) {
       throw new Error("Profile extraction failed: no response content");
     }
     // Extract JSON from markdown code blocks if present
-    const jsonMatch = parseContent.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/) || [null, parseContent];
-    const profile: CandidateProfile = sanitizeCandidateProfile(JSON.parse(jsonMatch[1]));
+    const jsonMatch = parseContent.match(
+      /```(?:json)?\s*\n?([\s\S]*?)\n?```/,
+    ) || [null, parseContent];
+    const profile: CandidateProfile = sanitizeCandidateProfile(
+      JSON.parse(jsonMatch[1]),
+    );
 
     // ── Step 2: Generate polished resume content (Claude Sonnet 4.6) ────────
     const generateResponse = await meshClient.chat.completions.create({
@@ -77,8 +85,12 @@ export async function POST(req: Request) {
       throw new Error("Resume generation failed: no response content");
     }
     // Extract JSON from markdown code blocks if present
-    const resumeJsonMatch = generateContent.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/) || [null, generateContent];
-    const resumeContent: ResumeContent = sanitizeResumeContent(JSON.parse(resumeJsonMatch[1]));
+    const resumeJsonMatch = generateContent.match(
+      /```(?:json)?\s*\n?([\s\S]*?)\n?```/,
+    ) || [null, generateContent];
+    const resumeContent: ResumeContent = sanitizeResumeContent(
+      JSON.parse(resumeJsonMatch[1]),
+    );
 
     // ── Step 3: Render PDF and upload to GCS ────────────────────────────────
     const { renderResumePdf } = await import("@/lib/pdfRenderer");
@@ -86,7 +98,11 @@ export async function POST(req: Request) {
 
     const id = nanoid();
     const pdfGcsPath = `generated-resumes/${id}/resume.pdf`;
-    const pdfGcsUrl = await uploadToGCS(pdfBuffer, pdfGcsPath, "application/pdf");
+    const pdfGcsUrl = await uploadToGCS(
+      pdfBuffer,
+      pdfGcsPath,
+      "application/pdf",
+    );
 
     return NextResponse.json({
       resumeContent,
@@ -96,8 +112,11 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("[generate] error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Resume generation failed" },
-      { status: 500 }
+      {
+        error:
+          error instanceof Error ? error.message : "Resume generation failed",
+      },
+      { status: 500 },
     );
   }
 }

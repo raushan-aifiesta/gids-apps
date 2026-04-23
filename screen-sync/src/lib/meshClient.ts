@@ -5,4 +5,4 @@ export const meshClient = new OpenAI({
   apiKey: process.env.MESH_API_KEY ?? "",
 });
 
-export const SCREENING_MODEL = "google/gemini-2.0-flash-001";
+export const SCREENING_MODEL = "openai/gpt-4o";
